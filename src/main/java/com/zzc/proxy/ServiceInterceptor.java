@@ -11,6 +11,7 @@ import net.sf.cglib.proxy.MethodProxy;
 
 import org.apache.mina.core.session.IoSession;
 
+import com.zzc.channel.ChannelSubject;
 import com.zzc.result.Result;
 import com.zzc.result.ResultObserver;
 
@@ -22,13 +23,11 @@ import com.zzc.result.ResultObserver;
  *
  */
 public class ServiceInterceptor implements MethodInterceptor,ResultObserver {
-	private static AtomicLong incrementLong = new AtomicLong();//自增的id
-	
-	private final String token = String.valueOf(incrementLong.incrementAndGet());//token值
-	private volatile Object result;//调用返回值
+	private final String token;//token值
+	private volatile Result result;//调用返回值
 	private CountDownLatch gate = new CountDownLatch(1);//声明一个大门 闭锁 用来协调等待异步返回
 
-	private IoSession ioSession;
+	private ChannelSubject channel;
 	private Class<?> itf;
 	
 	/**
@@ -36,9 +35,10 @@ public class ServiceInterceptor implements MethodInterceptor,ResultObserver {
 	 * @param ioSession
 	 * @param itf 代理的目标接口类
 	 */
-	public ServiceInterceptor(IoSession ioSession,Class<?> itf){
-		this.ioSession = ioSession;
+	public ServiceInterceptor(ChannelSubject channel,Class<?> itf){
+		this.channel = channel;
 		this.itf = itf;
+		this.token = channel.genToken();
 	}
 	
 	@Override
@@ -53,15 +53,18 @@ public class ServiceInterceptor implements MethodInterceptor,ResultObserver {
 		
 		Class[] a = {};
 		//构建请求对象
-		Invocation invocation = new RpcInvocatioin(arg1.getName(), argumentsType.toArray(a), arg2, this.itf);
+		Invocation invocation = new RpcInvocatioin(token,arg1.getName(), argumentsType.toArray(a), arg2, this.itf);
 		//发送请求
-		ioSession.write(invocation);
+		channel.write(invocation);
+		
+		//注册监听器
+		channel.register(this);
 		
 		//等待返回
 		gate.await();
 //		gate.await(timeout, unit)
 		
-		return result;
+		return result.getResult();
 	}
 	
 	@Override

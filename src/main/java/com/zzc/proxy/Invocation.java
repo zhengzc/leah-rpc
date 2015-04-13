@@ -27,4 +27,9 @@ public interface Invocation {
 	 * @return
 	 */
 	public Class<?> getInterface();
+	/**
+	 * 每次调用的唯一标示
+	 * @return
+	 */
+	public String getToken();
 }

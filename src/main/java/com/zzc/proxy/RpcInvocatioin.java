@@ -23,6 +23,10 @@ public class RpcInvocatioin implements Invocation,Serializable {
 	 * 调用的接口名
 	 */
 	private Class<?> itf;
+	/**
+	 * 每次调用的token，作为唯一标示
+	 */
+	private String token;
 	
 	/**
 	 * 
@@ -31,7 +35,8 @@ public class RpcInvocatioin implements Invocation,Serializable {
 	 * @param arguments 参数列表
 	 * @param itf 接口名
 	 */
-	public RpcInvocatioin(String methodName,Class[] argumentsType,Object[] arguments,Class<?> itf){
+	public RpcInvocatioin(String token,String methodName,Class[] argumentsType,Object[] arguments,Class<?> itf){
+		this.token = token;
 		this.methodName = methodName;
 		this.arguments= arguments;
 		this.argumentsType = argumentsType;
@@ -75,5 +80,11 @@ public class RpcInvocatioin implements Invocation,Serializable {
 		return this.itf;
 	}
 
+	public String getToken() {
+		return token;
+	}
 
+	public void setToken(String token) {
+		this.token = token;
+	}
 }

@@ -3,6 +3,7 @@ package com.zzc.proxy;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Date;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javassist.ClassPool;
@@ -62,6 +63,9 @@ public abstract class JavassistWrapper {
 			 * 参数名相同，参数个数相同，且参数类型相同，说明是同一个方法
 			 */
 			for(Method m : methods){
+				
+				invokeMethod.append("System.out.println($3[0].getName());");//加入调试信息
+				
 				if( m.getDeclaringClass() == Object.class ){ //忽略掉object中继承来的方法
 					continue;
 				}
@@ -79,7 +83,7 @@ public abstract class JavassistWrapper {
 				//判断是否存在方法重写
 				boolean override = false;
 				for(Method m2 : methods){
-					if(m2.equals(m) && m2.getName().equals(m.getName())){//不是同一个方法且方法类型相同
+					if(m2.equals(m) && m2.getName().equals(m.getName())){//同一个方法名且方法参数类型不同相同
 						override = true;
 						break;
 					}
@@ -88,8 +92,20 @@ public abstract class JavassistWrapper {
 				if(override){
 					if (mParamLength > 0) {
 						for (int l = 0; l < mParamLength; l ++) {
-							invokeMethod.append(" && ").append(" $3[").append(l).append("].getName().equals(\"")
-								.append(m.getParameterTypes()[l].getName()).append("\")");
+							
+							Class<?> pType = m.getParameterTypes()[l];
+							
+							invokeMethod.append(" && (").append(" $3[").append(l).append("].getName().equals(\"")
+								.append(pType.getName()).append("\")");
+							
+							if(isPrimitive(pType)){//如果是包装类
+								Class<?> oType = getBoxedClass(pType);
+								invokeMethod.append(" || ").append(" $3[").append(l).append("].getName().equals(\"")
+											.append(oType.getName()).append("\")");
+							}
+							
+							invokeMethod.append(")");
+							
 						}
 					}
 				}
@@ -97,7 +113,7 @@ public abstract class JavassistWrapper {
 				invokeMethod.append("){");
 				
 				//加入一段调试代码
-				invokeMethod.append("System.out.println(\""+mName+"\");");//test
+//				invokeMethod.append("System.out.println(\""+mName+"\");");//test
 				
 				//生成调用代码
 				if( m.getReturnType() == Void.TYPE){//此方法没有返回值，直接调用
@@ -239,5 +255,40 @@ public abstract class JavassistWrapper {
 	        }
 	    }
 	    return false;
+	}
+	
+	/**
+	 * 判断是否为包装类型
+	 * @param c
+	 * @return
+	 */
+	public static boolean isPrimitive(Class<?> cls) {
+        return cls.isPrimitive() || cls == String.class || cls == Boolean.class || cls == Character.class 
+                || Number.class.isAssignableFrom(cls) || Date.class.isAssignableFrom(cls);
+    }
+	
+	/**
+	 * 获取包装类型
+	 * @param c
+	 * @return
+	 */
+	public static Class<?> getBoxedClass(Class<?> c) {
+	    if( c == int.class )
+            c = Integer.class;
+        else if( c == boolean.class )
+            c = Boolean.class;
+        else  if( c == long.class )
+            c = Long.class;
+        else if( c == float.class )
+            c = Float.class;
+        else if( c == double.class )
+            c = Double.class;
+        else if( c == char.class )
+            c = Character.class;
+        else if( c == byte.class )
+            c = Byte.class;
+        else if( c == short.class )
+            c = Short.class;
+	    return c;
 	}
 }

@@ -15,6 +15,8 @@ import com.zzc.codec.HessianCodecFactory;
 import com.zzc.proxy.Invocation;
 import com.zzc.proxy.JavassistWrapper;
 import com.zzc.proxy.ProxyFactory;
+import com.zzc.result.Result;
+import com.zzc.result.impl.DefaultResult;
 
 public class MinaServer {
 	
@@ -39,7 +41,14 @@ public class MinaServer {
 					System.out.println("serverMsg--------->start");
 					Invocation invocation = (Invocation)message;
 					
+					//执行调用
 					Object obj = ProxyFactory.doInvoker(invocation);
+					
+					//装配返回结果
+					Result result = new DefaultResult(invocation.getToken(),obj);
+					
+					//返回
+					session.write(result);
 					
 					System.out.println("serverMsg--------->end");
 //					System.out.println("--->"+JSONObject.toJSONString(obj));

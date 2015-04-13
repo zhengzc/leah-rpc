@@ -10,6 +10,7 @@ import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.transport.socket.nio.NioSocketConnector;
 
+import com.alibaba.fastjson.JSONObject;
 import com.zzc.codec.HessianCodecFactory;
 import com.zzc.proxy.ProxyFactory;
 
@@ -25,7 +26,7 @@ public class MinaClient {
 			//添加hession的编码和解码过滤器
 			connector.getFilterChain().addLast("codec", new ProtocolCodecFilter(new HessianCodecFactory()));
 			//设置ioHandler处理业务逻辑
-			connector.setHandler(new IoHandlerAdapter(){
+			/*connector.setHandler(new IoHandlerAdapter(){
 
 				@Override
 				public void sessionOpened(IoSession session) throws Exception {
@@ -53,7 +54,8 @@ public class MinaClient {
 			    public void exceptionCaught( IoSession session, Throwable cause ) throws Exception{
 			        cause.printStackTrace();
 			    }
-			});
+			});*/
+			connector.setHandler(new ClientHandler());
 			
 			//连接
 			ConnectFuture connectFuture =  connector.connect(new InetSocketAddress("127.0.0.1",8825));
@@ -69,7 +71,10 @@ public class MinaClient {
 						e.printStackTrace();
 					}
 					UserServcie userServcie = (UserServcie)RpcUtil.referServicesMap.get(UserServcie.class);
-					userServcie.add(new UserBean(1111111));
+//					userServcie.add(new UserBean(1111111));
+					
+					UserBean userBean = userServcie.query(222);
+					System.out.println(JSONObject.toJSONString(userBean));
 				}
 			}.start();;
 			

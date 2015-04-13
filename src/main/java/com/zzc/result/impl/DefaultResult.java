@@ -15,6 +15,11 @@ public class DefaultResult implements Result,Serializable {
 	
 	private static final long serialVersionUID = -917929309672614713L;
 	
+	public DefaultResult(String token,Object result){
+		this.token = token;
+		this.result = result;
+	}
+	
 	public void setToken(String token) {
 		this.token = token;
 	}

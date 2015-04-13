@@ -24,7 +24,7 @@ public class JavassistWrapTest extends TestCase {
 			JavassistWrapper wrapper = JavassistWrapper.create(UserServcie.class);
 			
 			//测试
-			wrapper.invoke(userServcie, "add", UserServcie.class.getMethod("add",UserBean.class).getParameterTypes(), new Object[]{new UserBean(1122)});
+//			wrapper.invoke(userServcie, "add", UserServcie.class.getMethod("add",UserBean.class).getParameterTypes(), new Object[]{new UserBean(1122)});
 			
 			Object ret1 = wrapper.invoke(userServcie, "query", 
 					UserServcie.class.getMethod("query", Integer.TYPE,String.class).getParameterTypes(),
@@ -32,11 +32,11 @@ public class JavassistWrapTest extends TestCase {
 			
 			System.out.println(JSONObject.toJSON(ret1));
 			
-			Object ret2 = wrapper.invoke(userServcie, "query", 
-					UserServcie.class.getMethod("query", Integer.TYPE).getParameterTypes(),
-					new Object[]{1233});
-			
-			System.out.println(JSONObject.toJSON(ret2));
+//			Object ret2 = wrapper.invoke(userServcie, "query", 
+//					UserServcie.class.getMethod("query", Integer.TYPE).getParameterTypes(),
+//					new Object[]{1233});
+//			
+//			System.out.println(JSONObject.toJSON(ret2));
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;

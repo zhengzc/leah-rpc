@@ -8,6 +8,7 @@ import net.sf.cglib.proxy.Enhancer;
 import org.apache.mina.core.session.IoSession;
 
 import com.zzc.RpcUtil;
+import com.zzc.channel.ChannelSubject;
 
 /**
  * 生成代理类
@@ -32,7 +33,7 @@ public class ProxyFactory {
 	 * @param itf 接口
 	 * @return
 	 */
-	public static <T>T getProxy(IoSession session,Class<T> itf){
+	public static <T>T getProxy(ChannelSubject channel,Class<T> itf){
 		String itfName = itf.getName();
 		if(proxyObjectCache.containsKey(itfName)){
 			return (T)proxyObjectCache.get(itfName).create();
@@ -40,7 +41,7 @@ public class ProxyFactory {
 			//创建动态代理
 			Enhancer enhancer = new Enhancer();
 			enhancer.setInterfaces(new Class[]{itf});
-			enhancer.setCallback(new ServiceInterceptor(session, itf));
+			enhancer.setCallback(new ServiceInterceptor(channel, itf));
 			
 			//添加到缓存
 			proxyObjectCache.put(itfName, enhancer);
@@ -63,8 +64,15 @@ public class ProxyFactory {
 		//处理不同的服务
 		Object service = RpcUtil.exportServicesMap.get(itf.getName());//实现类
 		String methodName = invocation.getMethodName();//方法名
-		Class[] paramType = invocation.getArgumentsType();//参数类型列表
+		Class<?>[] paramType = invocation.getArgumentsType();//参数类型列表
 		Object[] value = invocation.getArguments();//参数值列表
+		
+		//处理paramType中的基本类型
+//		for(int i = 0 ; i < paramType.length ; i++){
+//			if(isWrapClass(paramType[i])){
+//				paramType[i] = paramType[i].getField("TYPE").;
+//			}
+//		}
 		
 		if(wrapObjectCache.containsKey(itfName)){//如果存在
 			JavassistWrapper wrap = wrapObjectCache.get(itfName);
