@@ -12,6 +12,7 @@ import com.zzc.result.ResultObserver;
 
 /**
  * 默认的通道观察者
+ * 将客户端与服务端通信的通道成为channel
  * @author ying
  *
  */

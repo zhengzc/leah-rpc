@@ -6,6 +6,7 @@ import com.zzc.result.ResultObserver;
 /**
  * 通道，抽象为客户端和服务端通信的媒介，比如一个tcp链接
  * 并且这是一个主题，可以向其订阅
+ * 此类的主要功能是完成通道上面的监听，将客户端收到的数据分发到指定的订阅者，并且能够发送请求给server
  * @author ying
  *
  */
@@ -16,7 +17,7 @@ public interface ChannelSubject{
 	 */
 	public String genToken();
 	/**
-	 * 写入一个对象
+	 * 向通道写入一个对象
 	 * @param obj
 	 */
 	public void write(Object obj);

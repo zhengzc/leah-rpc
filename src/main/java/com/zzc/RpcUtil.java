@@ -1,12 +1,7 @@
 package com.zzc;
 
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
-
-import net.sf.cglib.proxy.Enhancer;
-import net.sf.cglib.proxy.MethodInterceptor;
-import net.sf.cglib.proxy.MethodProxy;
 
 public class RpcUtil {
 	public static Map<String, Object> exportServicesMap = new HashMap<String, Object>();//导出服务列表
