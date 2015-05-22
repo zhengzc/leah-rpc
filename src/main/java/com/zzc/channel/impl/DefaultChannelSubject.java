@@ -8,7 +8,7 @@ import org.apache.mina.core.session.IoSession;
 
 import com.zzc.channel.ChannelSubject;
 import com.zzc.result.Result;
-import com.zzc.result.ResultObserver;
+import com.zzc.channel.Invoker;
 
 /**
  * 默认的通道观察者
@@ -16,32 +16,32 @@ import com.zzc.result.ResultObserver;
  * @author ying
  *
  */
-public class DefaultChannelObserver implements ChannelSubject {
+public class DefaultChannelSubject implements ChannelSubject {
 	private AtomicLong incrementLong = new AtomicLong();//自增的id
 	
 	private IoSession session;
 	/**
 	 * 观察者缓存
 	 */
-	private Map<String, ResultObserver> observerCache = new ConcurrentHashMap<String, ResultObserver>();
+	private Map<String, Invoker> observerCache = new ConcurrentHashMap<String, Invoker>();
 	
-	public DefaultChannelObserver(IoSession session){
+	public DefaultChannelSubject(IoSession session) {
 		this.session = session;
 	}
 
 	@Override
-	public void register(ResultObserver resultObserver) {
+	public void register(Invoker resultObserver) {
 		this.observerCache.put(resultObserver.getToken(), resultObserver);
 	}
 
 	@Override
-	public void remove(ResultObserver resultObserver) {
-		this.observerCache.remove(resultObserver.getToken());
+	public void remove(Invoker resultObserver) {
+        this.observerCache.remove(resultObserver.getToken());
 	}
 
 	@Override
 	public void notifyOberver(Result result) {
-		ResultObserver resultObserver = this.observerCache.get(result.getToken());//查询注册的观察者
+		Invoker resultObserver = this.observerCache.get(result.getToken());//查询注册的观察者
 		resultObserver.setResult(result);//调用观察者接口
 	}
 

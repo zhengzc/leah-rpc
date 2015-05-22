@@ -1,14 +1,11 @@
 package com.zzc.proxy;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
+import com.zzc.channel.ChannelSubject;
+import com.zzc.main.RpcContext;
 import net.sf.cglib.proxy.Enhancer;
 
-import org.apache.mina.core.session.IoSession;
-
-import com.zzc.RpcUtil;
-import com.zzc.channel.ChannelSubject;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 生成代理类
@@ -29,11 +26,14 @@ public class ProxyFactory {
 	/**
 	 * 生成客户端接口的代理类
 	 * 接口相同的代理类只生成一次
-	 * @param session 
+	 * @param channel
 	 * @param itf 接口
 	 * @return
 	 */
 	public static <T>T getProxy(ChannelSubject channel,Class<T> itf){
+        /**
+         * 这里可以优化一下，为什么每次都要创建新的代理类？我们直接将代理类缓存行不？
+         */
 		String itfName = itf.getName();
 		if(proxyObjectCache.containsKey(itfName)){
 			return (T)proxyObjectCache.get(itfName).create();
@@ -62,7 +62,7 @@ public class ProxyFactory {
 		Class<?> itf = invocation.getInterface();//接口名
 		String itfName = itf.getName();
 		//处理不同的服务
-		Object service = RpcUtil.exportServicesMap.get(itf.getName());//实现类
+		Object service = RpcContext.exportServicesMap.get(itf.getName());//实现类
 		String methodName = invocation.getMethodName();//方法名
 		Class<?>[] paramType = invocation.getArgumentsType();//参数类型列表
 		Object[] value = invocation.getArguments();//参数值列表

@@ -1,7 +1,6 @@
 package com.zzc.channel;
 
 import com.zzc.result.Result;
-import com.zzc.result.ResultObserver;
 
 /**
  * 通道，抽象为客户端和服务端通信的媒介，比如一个tcp链接
@@ -26,13 +25,13 @@ public interface ChannelSubject{
 	 * 注册一个订阅者
 	 * @param resultObserver 订阅者
 	 */
-	public void register(ResultObserver resultObserver);
+	public void register(Invoker resultObserver);
 	
 	/**
 	 * 删除一个订阅者
 	 * @param resultObserver
 	 */
-	public void remove(ResultObserver resultObserver);
+	public void remove(Invoker resultObserver);
 	
 	/**
 	 * 调用此方法来通知一个订阅者

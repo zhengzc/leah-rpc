@@ -6,7 +6,7 @@ import java.io.Serializable;
  * @author ying
  * 发起rpc调用的时候，调用信息传递封装在此类中
  */
-public class RpcInvocatioin implements Invocation,Serializable {
+public class RpcInvocation implements Invocation,Serializable {
 	/**
 	 * 方法名
 	 */
@@ -35,7 +35,7 @@ public class RpcInvocatioin implements Invocation,Serializable {
 	 * @param arguments 参数列表
 	 * @param itf 接口名
 	 */
-	public RpcInvocatioin(String token,String methodName,Class[] argumentsType,Object[] arguments,Class<?> itf){
+	public RpcInvocation(String token, String methodName, Class[] argumentsType, Object[] arguments, Class<?> itf){
 		this.token = token;
 		this.methodName = methodName;
 		this.arguments= arguments;
@@ -43,7 +43,17 @@ public class RpcInvocatioin implements Invocation,Serializable {
 		this.itf = itf;
 	}
 
-	public String getMethodName() {
+    @Override
+    public String toString(){
+        StringBuilder sb = new StringBuilder("RpcInvocation:");
+        sb.append("{itf:").append(this.getItf().getName())
+                .append(",methodName:").append(this.getMethodName())
+                .append(",token:").append(this.getToken())
+                .append("}");
+        return sb.toString();
+    }
+
+    public String getMethodName() {
 		return methodName;
 	}
 

@@ -15,6 +15,7 @@ import javassist.CtNewMethod;
 /**
  * 包装类
  * 此类将自动生成代理对象，对目标类进行包装
+ * 此类通过javassist为目标类创建一个包装类，实现类似反射机制，动态调用目标类方法
  * @author ying
  *
  */
@@ -190,7 +191,7 @@ public abstract class JavassistWrapper {
 	 * 根据传入类型，返回方法的参数代码，比如
 	 * (java.lang.String) name
 	 * @param cl
-	 * @param name
+	 * @param value
 	 * @return
 	 */
 	private static String arg(Class<?> cl, String value){
@@ -259,7 +260,7 @@ public abstract class JavassistWrapper {
 	
 	/**
 	 * 判断是否为包装类型
-	 * @param c
+	 * @param cls
 	 * @return
 	 */
 	public static boolean isPrimitive(Class<?> cls) {

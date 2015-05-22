@@ -1,18 +1,14 @@
 package com.zzc;
 
-import java.lang.reflect.Method;
-
-import net.sf.cglib.proxy.Callback;
+import com.alibaba.fastjson.JSONObject;
+import com.zzc.proxy.JavassistWrapper;
+import junit.framework.TestCase;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
-
 import org.junit.Test;
 
-import com.alibaba.fastjson.JSONObject;
-import com.zzc.proxy.JavassistWrapper;
-
-import junit.framework.TestCase;
+import java.lang.reflect.Method;
 
 public class JavassistWrapTest extends TestCase {
 	
