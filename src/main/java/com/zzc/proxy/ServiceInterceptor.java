@@ -7,6 +7,8 @@ import com.zzc.channel.impl.DefaultInvoker;
 import com.zzc.result.Result;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -20,7 +22,14 @@ import java.util.concurrent.CountDownLatch;
  *
  */
 public class ServiceInterceptor implements MethodInterceptor {
+    private final Logger logger = LoggerFactory.getLogger(ServiceInterceptor.class);
+    /**
+     * 通道
+     */
 	private ChannelSubject channel;
+    /**
+     * 接口
+     */
 	private Class<?> itf;
 	
 	/**
@@ -46,7 +55,7 @@ public class ServiceInterceptor implements MethodInterceptor {
 		Class[] a = {};
 		//构建请求对象
 		Invocation invocation = new RpcInvocation(this.channel.genToken(),arg1.getName(), argumentsType.toArray(a), arg2, this.itf);
-        System.out.println("请求对象构建成功:"+ JSONObject.toJSONString(invocation));
+        logger.debug("create invocation success:{}",JSONObject.toJSONString(invocation));
 		/*//发送请求
 		channel.write(invocation);
         System.out.println("请求已发送");
@@ -61,8 +70,14 @@ public class ServiceInterceptor implements MethodInterceptor {
         System.out.println("获取到返回结果");
 		
 		return result.getResult();*/
+        //构建调用者
         Invoker invoker = new DefaultInvoker(this.channel,invocation);
+        //执行调用
         Result result =  invoker.doInvoke();
+        if(result.getException() != null){//调用如果发生异常
+            throw result.getException();//服务端的异常被封装传送过来
+        }
+        //正常返回
         return result.getResult();
 	}
 }

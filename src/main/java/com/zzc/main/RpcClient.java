@@ -6,6 +6,8 @@ import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.service.IoConnector;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.transport.socket.nio.NioSocketConnector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 
@@ -14,6 +16,7 @@ import java.net.InetSocketAddress;
  * rpc服务的客户端
  */
 public class RpcClient {
+    private static final Logger logger = LoggerFactory.getLogger(RpcClient.class);
     /**
      * 连接超时时间
      */
@@ -25,6 +28,7 @@ public class RpcClient {
      * 启动客户端
      */
     public static void start(){
+        logger.info("rpcClient start-->ip:{},port:{},connectTimeoutMillis:{}",new Object[]{ip,port,connectTimeoutMillis});
         IoConnector connector = new NioSocketConnector();
         connector.setConnectTimeoutMillis(3000);//连接超时时间
         //添加hession的编码和解码过滤器
@@ -32,9 +36,10 @@ public class RpcClient {
         connector.setHandler(new ClientHandler());
 
         //连接
-        ConnectFuture connectFuture =  connector.connect(new InetSocketAddress("127.0.0.1",8825));
+        ConnectFuture connectFuture =  connector.connect(new InetSocketAddress(ip,port));
         //等待连接创建成功
         connectFuture.awaitUninterruptibly();
+        logger.info("rpcClient connected");
     }
 
     public static void setConnectTimeoutMillis(int connectTimeoutMillis) {

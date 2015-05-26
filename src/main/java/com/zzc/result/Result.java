@@ -19,4 +19,10 @@ public interface Result {
 	 * @return
 	 */
 	public Object getResult();
+
+    /**
+     * 获取异常，正常情况下这个字段为null 如果服务端异常，这里则是异常信息
+     * @return
+     */
+    public Throwable getException();
 }

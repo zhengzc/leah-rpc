@@ -11,23 +11,26 @@ import com.zzc.channel.ChannelSubject;
 import com.zzc.channel.impl.DefaultChannelSubject;
 import com.zzc.proxy.ProxyFactory;
 import com.zzc.result.Result;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 客户端handler，此处是客户端执行远程调用的入口
  */
 public class ClientHandler extends IoHandlerAdapter{
+    private final Logger logger = LoggerFactory.getLogger(ClientHandler.class);
 	
 	private ChannelSubject channelSubject;//通道
 	
 	@Override
 	public void sessionOpened(IoSession session) throws Exception {
-
+        logger.debug("session opened");
 	}
 
 	@Override
-	public void exceptionCaught(IoSession session, Throwable cause)
-			throws Exception {
-		cause.printStackTrace();
+	public void exceptionCaught(IoSession session, Throwable cause) throws Exception {
+        logger.debug("exception caught");
+        logger.error(cause.getMessage(), cause);
 	}
 
     /**
@@ -38,25 +41,24 @@ public class ClientHandler extends IoHandlerAdapter{
      * @throws Exception
      */
 	@Override
-	public void messageReceived(IoSession session, Object message)
-			throws Exception {
-        System.out.println("Client mssageReceived:"+ JSONObject.toJSONString(message));
+	public void messageReceived(IoSession session, Object message) throws Exception {
+        logger.debug("message received:{}",JSONObject.toJSONString(message));
 		Result result = (Result)message;//获取结果
-		this.channelSubject.notifyOberver(result);//调用通知
+		this.channelSubject.notifyObserver(result);//调用通知
 	}
 
 	@Override
 	public void messageSent(IoSession session, Object message) throws Exception {
-		super.messageSent(session, message);
+        logger.debug("message sent");
 	}
 
 	@Override
 	public void sessionCreated(IoSession session) throws Exception {
-        System.out.println("ClientHandler sessionCreated start");
-
+        logger.debug("session created");
         /**
          * 接口的动态代理放在 sessionCreated方法中初始化，因为在mina中，sessionCreated事件只能与IoProcessor在同一线程上执行
          */
+        logger.debug("client start create refer implements proxy");
         //初始化通道
         channelSubject = new DefaultChannelSubject(session);
 
@@ -68,6 +70,6 @@ public class ClientHandler extends IoHandlerAdapter{
 
             entry.setValue(tmp);
         }
-        System.out.println("ClientHandler sessionCreated end");
+        logger.debug("client create refer proxy end");
 	}
 }

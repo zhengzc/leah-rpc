@@ -4,6 +4,8 @@ import com.zzc.channel.ChannelSubject;
 import com.zzc.channel.Invoker;
 import com.zzc.proxy.Invocation;
 import com.zzc.result.Result;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.channels.Channel;
 import java.util.concurrent.CountDownLatch;
@@ -12,6 +14,8 @@ import java.util.concurrent.CountDownLatch;
  * Created by ying on 15/5/22.
  */
 public class DefaultInvoker implements Invoker {
+    private final Logger logger = LoggerFactory.getLogger(DefaultInvoker.class);
+
     /**
      * 通道
      */
@@ -33,6 +37,10 @@ public class DefaultInvoker implements Invoker {
      */
     private String token;
 
+    /**
+     * @param channel
+     * @param invocation
+     */
     public DefaultInvoker(ChannelSubject channel,Invocation invocation){
         this.channel = channel;
         this.token = invocation.getToken();
@@ -41,20 +49,24 @@ public class DefaultInvoker implements Invoker {
 
     @Override
     public Result doInvoke() throws InterruptedException {
+        logger.debug("doInvoke");
         //发送请求
         this.channel.write(invocation);
         //监听调用，等待返回
         this.channel.register(this);
+        logger.debug("register success,wait return");
         //等待返回
         this.gate.await();
 
+        logger.debug("call success,token is {}",result.getToken());
         return this.result;
     }
 
     @Override
     public void setResult(Result result) {
+        logger.debug("set result,token is {}",result.getToken());
+        this.result = result;//这个要放在gate.countDown的前面，要不然坑死你
         this.gate.countDown();
-        this.result = result;
     }
 
     @Override

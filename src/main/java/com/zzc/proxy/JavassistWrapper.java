@@ -11,6 +11,8 @@ import javassist.CtClass;
 import javassist.CtMethod;
 import javassist.CtNewConstructor;
 import javassist.CtNewMethod;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 包装类
@@ -20,8 +22,9 @@ import javassist.CtNewMethod;
  *
  */
 public abstract class JavassistWrapper {
-	
-	private static AtomicLong COUNTER = new AtomicLong(0);//自增的计数器
+    private static final Logger logger = LoggerFactory.getLogger(JavassistWrapper.class);
+
+    private static AtomicLong COUNTER = new AtomicLong(0);//自增的计数器
 	
 	/**
 	 * 包装的代理方法，代理对象统一使用此方法调用真实需要调用的方法
@@ -53,7 +56,7 @@ public abstract class JavassistWrapper {
 										.append(name)
 										.append(" obj; try{ obj = ((").append(name).append(")$1); }catch(Throwable e){ throw new IllegalArgumentException(e); }");
 		
-		invokeMethod.append("System.out.println(\""+name+"\");");//test
+//		invokeMethod.append("System.out.println(\""+name+"\");");//test
 		
 		//获取当前类的方法列表
 		Method[] methods = c.getMethods();
@@ -65,7 +68,7 @@ public abstract class JavassistWrapper {
 			 */
 			for(Method m : methods){
 				
-				invokeMethod.append("System.out.println($3[0].getName());");//加入调试信息
+//				invokeMethod.append("System.out.println($3[0].getName());");//加入调试信息
 				
 				if( m.getDeclaringClass() == Object.class ){ //忽略掉object中继承来的方法
 					continue;
@@ -162,7 +165,7 @@ public abstract class JavassistWrapper {
 			Class<?> targetClass = cc.toClass();
 			return (JavassistWrapper) targetClass.newInstance();
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(),e);
 			throw e;
 		}finally{
 			cc.detach();

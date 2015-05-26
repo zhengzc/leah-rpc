@@ -20,7 +20,7 @@ public class RpcClientTest extends TestCase {
 
         //模拟调用
         int i = 0;
-        while(i < 60) {
+        while(i < 2) {
 //            try {
 //                Thread.sleep(1000);
 //            } catch (InterruptedException e) {
@@ -46,33 +46,13 @@ public class RpcClientTest extends TestCase {
         RpcContext.refer(UserServcie.class);
         RpcClient.start();
 
-        //模拟调用
-        new Thread(){
-            @Override
-            public void run() {
-                int i = 0;
-                while(i < 60){
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    UserServcie userServcie = (UserServcie) RpcContext.referServicesMap.get(UserServcie.class);
-//					userServcie.add(new UserBean(1111111));
-
-                    System.out.println("****开始第"+i+"次调用****");
-                    UserBean userBean = userServcie.query(i*100);
-                    System.out.println(i+"--------->"+JSONObject.toJSONString(userBean));
-
-                    userBean = userServcie.query(i*100,"第"+i*100+"调用");
-                    System.out.println(i+"--------->"+JSONObject.toJSONString(userBean));
-
-                    System.out.println("****第"+i+"次调用结束****");
-                    i++;
-                }
-            }
-        }.start();
-
+        int i = 0;
+        while(i < 100){
+            //模拟调用
+            Thread t = new Thread(new ThreadTest(i));
+            t.start();
+            i++;
+        }
         CountDownLatch countDownLatch = new CountDownLatch(1);
         try {
             countDownLatch.await();

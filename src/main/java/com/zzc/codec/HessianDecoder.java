@@ -8,14 +8,19 @@ import org.apache.mina.filter.codec.CumulativeProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 
 import com.caucho.hessian.io.Hessian2Input;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 继承CumulativeProtocolDecoder解码器，实现消息的拆包处理
+ * 此类将根据encoder序列化数据的格式进行拆包处理，encoder写入的消息体格式为 对象长度(int)+对象(object)
  * @author ying
  *
  */
 public class HessianDecoder extends CumulativeProtocolDecoder {
-	private int maxDataLength;
+    private final Logger logger = LoggerFactory.getLogger(HessianDecoder.class);
+
+	private int maxDataLength;//发送对象大小
 	
 	public HessianDecoder(int maxDataLength){
 		this.maxDataLength = maxDataLength;
@@ -26,16 +31,17 @@ public class HessianDecoder extends CumulativeProtocolDecoder {
 	protected boolean doDecode(IoSession session, IoBuffer in,
 			ProtocolDecoderOutput out) throws Exception {
 		
-		System.out.println("------>decoder");
+        logger.debug("start decoder");
 		
 		Object ret;
 		
 		//先获取对象长度，拆包
 //		in.flip();//切换到读模式 这里不能切换，可能是已经切换过了
-//		if(in.prefixedDataAvailable(4,maxDataLength)){
-		if(in.prefixedDataAvailable(4)){//出现完整的对象,则表示收到一个请求,准备拆包
-			int objectSize = in.getInt();//获取对象长度
-			System.out.println("---对象长度为:"+objectSize);
+
+//		if(in.prefixedDataAvailable(4)){//出现完整的对象,则表示收到一个请求,准备拆包,此方法可能导致ddos攻击，修改为prefixedDataAvailable(int,int)方法
+		if(in.prefixedDataAvailable(4,maxDataLength)){//encoder中我们写入了一个int来表示对象长度
+            int objectSize = in.getInt();//获取对象长度
+            logger.debug("object size is {}",objectSize);
 			
 			//读取数据
 			byte[] data = new byte[objectSize];
@@ -59,7 +65,7 @@ public class HessianDecoder extends CumulativeProtocolDecoder {
 				//清除ioBuffer中已经读取过的内容
 //					in.compact();
 			}catch(Exception e){
-				e.printStackTrace();
+				logger.error(e.getMessage(),e);
 				throw e;
 			}finally{
 				if(hessian2Input != null){
@@ -68,10 +74,13 @@ public class HessianDecoder extends CumulativeProtocolDecoder {
 				if(is != null){
 					is.close();
 				}
-			}
-			return true;
-		}else{//对象没有接受完毕，等待继续读取
-			return false;
-		}
+            }
+            logger.debug("end decoder return true");
+            return true;
+        }else{//对象没有接受完毕，等待继续读取
+            logger.debug("end decoder return false");
+            return false;
+        }
+
 	}
 }

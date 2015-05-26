@@ -1,14 +1,15 @@
 package com.zzc.channel.impl;
 
+import com.zzc.channel.ChannelSubject;
+import com.zzc.channel.Invoker;
+import com.zzc.result.Result;
+import org.apache.mina.core.session.IoSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
-
-import org.apache.mina.core.session.IoSession;
-
-import com.zzc.channel.ChannelSubject;
-import com.zzc.result.Result;
-import com.zzc.channel.Invoker;
 
 /**
  * 默认的通道观察者
@@ -17,6 +18,8 @@ import com.zzc.channel.Invoker;
  *
  */
 public class DefaultChannelSubject implements ChannelSubject {
+    private final Logger logger = LoggerFactory.getLogger(DefaultChannelSubject.class);
+
 	private AtomicLong incrementLong = new AtomicLong();//自增的id
 	
 	private IoSession session;
@@ -31,18 +34,21 @@ public class DefaultChannelSubject implements ChannelSubject {
 
 	@Override
 	public void register(Invoker resultObserver) {
+        logger.debug("register Observer token is : {}",resultObserver.getToken());
 		this.observerCache.put(resultObserver.getToken(), resultObserver);
 	}
 
 	@Override
 	public void remove(Invoker resultObserver) {
+        logger.debug("remove observer token is : {}",resultObserver.getToken());
         this.observerCache.remove(resultObserver.getToken());
 	}
 
 	@Override
-	public void notifyOberver(Result result) {
-		Invoker resultObserver = this.observerCache.get(result.getToken());//查询注册的观察者
-		resultObserver.setResult(result);//调用观察者接口
+	public void notifyObserver(Result result) {
+        logger.debug("notify observer token is : {}",result.getToken());
+		Invoker invoker = this.observerCache.get(result.getToken());//查询注册的观察者
+		invoker.setResult(result);//调用观察者接口
 	}
 
 	@Override

@@ -12,12 +12,12 @@ import com.zzc.result.Result;
 public class DefaultResult implements Result,Serializable {
 	private String token;
 	private Object result;
+    private Throwable throwable;
 	
 	private static final long serialVersionUID = -917929309672614713L;
 	
-	public DefaultResult(String token,Object result){
+	public DefaultResult(String token){
 		this.token = token;
-		this.result = result;
 	}
 	
 	public void setToken(String token) {
@@ -38,4 +38,16 @@ public class DefaultResult implements Result,Serializable {
 		return this.result;
 	}
 
+    @Override
+    public Throwable getException() {
+        return this.throwable;
+    }
+
+    public Throwable getThrowable() {
+        return throwable;
+    }
+
+    public void setThrowable(Throwable throwable) {
+        this.throwable = throwable;
+    }
 }

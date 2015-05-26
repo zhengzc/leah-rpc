@@ -37,5 +37,5 @@ public interface ChannelSubject{
 	 * 调用此方法来通知一个订阅者
 	 * @param result 
 	 */
-	public void notifyOberver(Result result);
+	public void notifyObserver(Result result);
 }

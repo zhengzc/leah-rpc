@@ -3,6 +3,8 @@ package com.zzc.proxy;
 import com.zzc.channel.ChannelSubject;
 import com.zzc.main.RpcContext;
 import net.sf.cglib.proxy.Enhancer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -14,10 +16,11 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  */
 public class ProxyFactory {
+    private static final Logger logger = LoggerFactory.getLogger(ProxyFactory.class);
 	/**
 	 * 存储代理类的缓存
 	 */
-	private static Map<String, Enhancer> proxyObjectCache = new ConcurrentHashMap<String, Enhancer>();
+	private static Map<String, Object> proxyObjectCache = new ConcurrentHashMap<String, Object>();
 	/**
 	 * 存储包装类的缓存
 	 */
@@ -36,7 +39,7 @@ public class ProxyFactory {
          */
 		String itfName = itf.getName();
 		if(proxyObjectCache.containsKey(itfName)){
-			return (T)proxyObjectCache.get(itfName).create();
+			return (T)proxyObjectCache.get(itfName);
 		}else{
 			//创建动态代理
 			Enhancer enhancer = new Enhancer();
@@ -44,7 +47,7 @@ public class ProxyFactory {
 			enhancer.setCallback(new ServiceInterceptor(channel, itf));
 			
 			//添加到缓存
-			proxyObjectCache.put(itfName, enhancer);
+			proxyObjectCache.put(itfName, enhancer.create());
 			
 			return (T)enhancer.create();
 			
