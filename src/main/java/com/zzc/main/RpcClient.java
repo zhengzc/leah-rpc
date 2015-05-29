@@ -5,6 +5,7 @@ import com.zzc.handler.ClientHandler;
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.service.IoConnector;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
+import org.apache.mina.filter.executor.ExecutorFilter;
 import org.apache.mina.transport.socket.nio.NioSocketConnector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,9 +31,14 @@ public class RpcClient {
     public static void start(){
         logger.info("rpcClient start-->ip:{},port:{},connectTimeoutMillis:{}",new Object[]{ip,port,connectTimeoutMillis});
         IoConnector connector = new NioSocketConnector();
-        connector.setConnectTimeoutMillis(3000);//连接超时时间
+        connector.setConnectTimeoutMillis(connectTimeoutMillis);//连接超时时间
         //添加hession的编码和解码过滤器
         connector.getFilterChain().addLast("codec", new ProtocolCodecFilter(new HessianCodecFactory()));
+        /**
+         * 添加ExecutorFilter将业务线程与io线程分离
+         * 将来这里可以考虑做优化，ExecutorFilter中有很多参数可以调整
+         */
+        connector.getFilterChain().addLast("exceutor", new ExecutorFilter());
         connector.setHandler(new ClientHandler());
 
         //连接

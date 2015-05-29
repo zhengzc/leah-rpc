@@ -5,6 +5,7 @@ import com.zzc.handler.ServiceHandler;
 import org.apache.mina.core.service.IoAcceptor;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
+import org.apache.mina.filter.executor.ExecutorFilter;
 import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +47,11 @@ public class RpcServer {
         acceptor.getSessionConfig().setIdleTime(IdleStatus.BOTH_IDLE, idleTime);//设置多长时间进入空闲
         //添加hession的编码和解码过滤器
         acceptor.getFilterChain().addLast("codec", new ProtocolCodecFilter(new HessianCodecFactory()));
+        /**
+         * 添加ExecutorFilter将业务线程与io线程分离
+         * 将来这里可以考虑做优化，ExecutorFilter中有很多参数可以调整
+         */
+        acceptor.getFilterChain().addLast("exceutor", new ExecutorFilter());
         //设置ioHandler处理业务逻辑
         acceptor.setHandler(new ServiceHandler());
 
