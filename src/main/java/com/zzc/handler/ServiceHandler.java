@@ -2,13 +2,15 @@ package com.zzc.handler;
 
 import com.zzc.proxy.Invocation;
 import com.zzc.proxy.ProxyFactory;
-import com.zzc.result.Result;
-import com.zzc.result.impl.DefaultResult;
+import com.zzc.proxy.result.impl.DefaultResult;
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 /**
  * Created by ying on 15/5/18.
@@ -16,6 +18,11 @@ import org.slf4j.LoggerFactory;
  */
 public class ServiceHandler extends IoHandlerAdapter {
     private final Logger logger = LoggerFactory.getLogger(ServiceHandler.class);
+
+    /**
+     * 执行真正方法调用的线程池
+     */
+    private Executor threadPool = Executors.newCachedThreadPool();
 
     @Override
     public void sessionCreated(IoSession session) throws Exception {
@@ -53,25 +60,61 @@ public class ServiceHandler extends IoHandlerAdapter {
     public void messageReceived(IoSession session, Object message) throws Exception {
         logger.debug("message Received-->message is {}", message.toString());
         //客户端收到的消息统一转换为Invocation对象
-        Invocation invocation = (Invocation) message;
-        DefaultResult result = new DefaultResult(invocation.getToken());
-        try {
-            //执行调用
-            Object obj = ProxyFactory.doInvoker(invocation);
-            //装配返回结果 返回结果统一装配为Result
-            result.setResult(obj);
-        }catch (Exception e){
-            //如果出现异常，写入异常信息
-            result.setThrowable(e);
-            logger.error(e.getMessage(),e);
-        }
+//        Invocation invocation = (Invocation) message;
+//        DefaultResult result = new DefaultResult(invocation.getToken());
+//        try {
+//            //执行调用
+//            Object obj = ProxyFactory.doInvoker(invocation);
+//            //装配返回结果 返回结果统一装配为Result
+//            result.setResult(obj);
+//        }catch (Exception e){
+//            //如果出现异常，写入异常信息
+//            result.setThrowable(e);
+//            logger.error(e.getMessage(),e);
+//        }
+//
+//        //写入返回数据
+//        session.write(result);
 
-        //写入返回数据
-        session.write(result);
+        this.threadPool.execute(new RpcService(session,(Invocation) message));
     }
 
     @Override
     public void messageSent(IoSession session, Object message) throws Exception {
         logger.debug("message sent");
+    }
+
+
+    /**
+     * 服务端每次都用新的线程处理远程调用
+     * 此类就是每次收到请求的时候发起的调用类
+     */
+    class RpcService implements Runnable{
+        private IoSession session;
+        private Invocation invocation;
+
+        public RpcService(IoSession session,Invocation invocation){
+            this.session = session;
+            this.invocation = invocation;
+        }
+        @Override
+        public void run() {
+            //客户端收到的消息统一转换为Invocation对象
+            DefaultResult result = new DefaultResult(invocation.getToken());
+            try {
+                //执行调用
+                Object obj = ProxyFactory.doInvoker(invocation);
+                //装配返回结果 返回结果统一装配为Result
+                result.setResult(obj);
+            }catch (Exception e){
+                //如果出现异常，写入异常信息
+                result.setThrowable(e);
+                logger.error(e.getMessage(),e);
+            }
+
+            //写入返回数据
+            session.write(result);
+
+        }
     }
 }

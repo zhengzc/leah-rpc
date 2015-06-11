@@ -3,14 +3,15 @@ package com.zzc.handler;
 import java.util.Map.Entry;
 
 import com.alibaba.fastjson.JSONObject;
-import com.zzc.main.RpcContext;
+import com.zzc.main.config.InterfaceConfig;
+import com.zzc.main.config.RpcContext;
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IoSession;
 
 import com.zzc.channel.ChannelSubject;
 import com.zzc.channel.impl.DefaultChannelSubject;
 import com.zzc.proxy.ProxyFactory;
-import com.zzc.result.Result;
+import com.zzc.proxy.result.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,12 +64,16 @@ public class ClientHandler extends IoHandlerAdapter{
         channelSubject = new DefaultChannelSubject(session);
 
         //为注册接口生成动态代理
-        for(Entry<Class<?>, Object> entry : RpcContext.referServicesMap.entrySet()){//遍历待处理引用列表
+        for(Entry<Class<?>, InterfaceConfig> entry : RpcContext.getReferServices().entrySet()){//遍历待处理引用列表
             final Class<?> itf = entry.getKey();
+            InterfaceConfig itfCfg = entry.getValue();
             //创建动态代理
-            Object tmp = ProxyFactory.getProxy(channelSubject, itf);
+            Object obj = ProxyFactory.getProxy(channelSubject, itf);
 
-            entry.setValue(tmp);
+            //设置生成的动态代理对象
+            itfCfg.setItf(itf);
+            itfCfg.setRef(obj);
+            entry.setValue(itfCfg);
         }
         logger.debug("client create refer proxy end");
 	}

@@ -1,6 +1,6 @@
 package com.zzc.channel;
 
-import com.zzc.result.Result;
+import com.zzc.proxy.result.Result;
 
 /**
  * 通道，抽象为客户端和服务端通信的媒介，比如一个tcp链接

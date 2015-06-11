@@ -2,18 +2,22 @@ package com.zzc.channel.impl;
 
 import com.zzc.channel.ChannelSubject;
 import com.zzc.channel.Invoker;
+import com.zzc.main.config.InterfaceConfig;
+import com.zzc.main.config.RpcContext;
 import com.zzc.proxy.Invocation;
-import com.zzc.result.Result;
+import com.zzc.proxy.result.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.channels.Channel;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Created by ying on 15/5/22.
  */
-public class DefaultInvoker implements Invoker {
+public class DefaultInvoker implements Invoker{
     private final Logger logger = LoggerFactory.getLogger(DefaultInvoker.class);
 
     /**
@@ -48,18 +52,32 @@ public class DefaultInvoker implements Invoker {
     }
 
     @Override
-    public Result doInvoke() throws InterruptedException {
+    public Result doInvoke() throws InterruptedException,TimeoutException {
         logger.debug("doInvoke");
+
+        //获取当前接口的配置信息
+        InterfaceConfig itfCfg = RpcContext.getReferServices().get(invocation.getInterface());
+
         //发送请求
         this.channel.write(invocation);
         //监听调用，等待返回
         this.channel.register(this);
         logger.debug("register success,wait return");
         //等待返回
-        this.gate.await();
+        Boolean isSuccess = this.gate.await(itfCfg.getTimeout(), TimeUnit.MILLISECONDS);
 
+        if(!isSuccess){
+            throw new TimeoutException("request timeout");
+        }else{//返回成功的话直接删除
+            this.channel.remove(this);
+        }
         logger.debug("call success,token is {}",result.getToken());
         return this.result;
+    }
+
+    @Override
+    public Result call() throws Exception {
+        return this.doInvoke();
     }
 
     @Override

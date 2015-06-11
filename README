@@ -11,3 +11,11 @@
 
 20150529
     1.增加ExecutorFilter，是服务端和客户端的业务线程与io线程分离执行
+
+20150603
+    1.出现一个bug，当客户端并发连接数超过1w的时候，出现java.lang.IllegalArgumentException: message at
+    org.apache.mina.core.write.DefaultWriteRequest.<init>(DefaultWriteRequest.java:133)异常，经研究发现这是mina
+    的一个bug，mina在2.0.8这个版本修复，我们也将版本号升级为2.0.8。bug详情参见：https://issues.apache.org/jira/browse/DIRMINA-982
+    2.增加了client端的超时时间配置
+    3.增加了客户端的异步调用
+    4.服务端现在针对于每次远程调用，都会开启一个新线程

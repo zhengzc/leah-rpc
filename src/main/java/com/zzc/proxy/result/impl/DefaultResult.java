@@ -1,8 +1,8 @@
-package com.zzc.result.impl;
+package com.zzc.proxy.result.impl;
 
 import java.io.Serializable;
 
-import com.zzc.result.Result;
+import com.zzc.proxy.result.Result;
 
 /**
  * 默认的返回值
@@ -13,6 +13,7 @@ public class DefaultResult implements Result,Serializable {
 	private String token;
 	private Object result;
     private Throwable throwable;
+//    private transient Boolean isSuccess;
 	
 	private static final long serialVersionUID = -917929309672614713L;
 	
@@ -50,4 +51,12 @@ public class DefaultResult implements Result,Serializable {
     public void setThrowable(Throwable throwable) {
         this.throwable = throwable;
     }
+
+//    public Boolean getIsSuccess() {
+//        return isSuccess;
+//    }
+//
+//    public void setIsSuccess(Boolean isSuccess) {
+//        this.isSuccess = isSuccess;
+//    }
 }

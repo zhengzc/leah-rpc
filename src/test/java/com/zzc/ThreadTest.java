@@ -1,7 +1,7 @@
 package com.zzc;
 
 import com.alibaba.fastjson.JSONObject;
-import com.zzc.main.RpcContext;
+import com.zzc.main.config.RpcContext;
 
 /**
  * Created by ying on 15/5/25.
@@ -18,7 +18,7 @@ public class ThreadTest implements Runnable {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        UserServcie userServcie = (UserServcie) RpcContext.referServicesMap.get(UserServcie.class);
+        UserServcie userServcie = (UserServcie) (RpcContext.getReferServices().get(UserServcie.class).getRef());
         //					userServcie.add(new UserBean(1111111));
 
         System.out.println("****开始第"+index+"次调用****");

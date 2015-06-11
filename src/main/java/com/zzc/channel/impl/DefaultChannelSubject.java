@@ -2,7 +2,7 @@ package com.zzc.channel.impl;
 
 import com.zzc.channel.ChannelSubject;
 import com.zzc.channel.Invoker;
-import com.zzc.result.Result;
+import com.zzc.proxy.result.Result;
 import org.apache.mina.core.session.IoSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +48,11 @@ public class DefaultChannelSubject implements ChannelSubject {
 	public void notifyObserver(Result result) {
         logger.debug("notify observer token is : {}",result.getToken());
 		Invoker invoker = this.observerCache.get(result.getToken());//查询注册的观察者
-		invoker.setResult(result);//调用观察者接口
+        if(invoker != null){
+            invoker.setResult(result);//调用观察者接口
+        }else{
+            logger.info("invoker is not exist:{}",result.getToken());
+        }
 	}
 
 	@Override

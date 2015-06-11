@@ -1,7 +1,7 @@
 package com.zzc.proxy;
 
 import com.zzc.channel.ChannelSubject;
-import com.zzc.main.RpcContext;
+import com.zzc.main.config.RpcContext;
 import net.sf.cglib.proxy.Enhancer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +33,7 @@ public class ProxyFactory {
 	 * @param itf 接口
 	 * @return
 	 */
-	public static <T>T getProxy(ChannelSubject channel,Class<T> itf){
+	public static <T>T getProxy(ChannelSubject channel,Class<?> itf){
         /**
          * 这里可以优化一下，为什么每次都要创建新的代理类？我们直接将代理类缓存行不？
          */
@@ -65,7 +65,7 @@ public class ProxyFactory {
 		Class<?> itf = invocation.getInterface();//接口名
 		String itfName = itf.getName();
 		//处理不同的服务
-		Object service = RpcContext.exportServicesMap.get(itf.getName());//实现类
+		Object service = RpcContext.getExportServices().get(itf.getName());//实现类
 		String methodName = invocation.getMethodName();//方法名
 		Class<?>[] paramType = invocation.getArgumentsType();//参数类型列表
 		Object[] value = invocation.getArguments();//参数值列表

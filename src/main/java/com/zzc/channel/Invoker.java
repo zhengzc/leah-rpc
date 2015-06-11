@@ -1,6 +1,9 @@
 package com.zzc.channel;
 
-import com.zzc.result.Result;
+import com.zzc.proxy.result.Result;
+
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeoutException;
 
 /**
  * 调用者，每当客户端发起调用的时候，将由此接口实例化出一个调用者，发起一次调用
@@ -8,12 +11,12 @@ import com.zzc.result.Result;
  * @author ying
  *
  */
-public interface Invoker {
+public interface Invoker extends Callable {
     /**
      * 发起一次调用
      * @return
      */
-    public Result doInvoke() throws InterruptedException;
+    public Result doInvoke() throws InterruptedException,TimeoutException;
 	/**
 	 * 设置result
 	 * 此方法是通道收到消息时候通知调用者的接口

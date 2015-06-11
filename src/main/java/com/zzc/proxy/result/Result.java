@@ -1,4 +1,4 @@
-package com.zzc.result;
+package com.zzc.proxy.result;
 
 
 /**
@@ -25,4 +25,10 @@ public interface Result {
      * @return
      */
     public Throwable getException();
+
+//    /**
+//     * 判断是否调用成功
+//     * @return
+//     */
+//    public Boolean getIsSuccess();
 }

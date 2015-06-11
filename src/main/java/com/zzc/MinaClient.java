@@ -3,7 +3,7 @@ package com.zzc;
 import java.net.InetSocketAddress;
 
 import com.zzc.handler.ClientHandler;
-import com.zzc.main.RpcContext;
+import com.zzc.main.config.RpcContext;
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.service.IoConnector;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
@@ -38,7 +38,7 @@ public class MinaClient {
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
-					UserServcie userServcie = (UserServcie) RpcContext.referServicesMap.get(UserServcie.class);
+					UserServcie userServcie = (UserServcie) (RpcContext.getReferServices().get(UserServcie.class).getRef());
 //					userServcie.add(new UserBean(1111111));
 					
 					UserBean userBean = userServcie.query(222);

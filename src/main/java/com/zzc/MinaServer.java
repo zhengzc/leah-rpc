@@ -2,7 +2,7 @@ package com.zzc;
 
 import com.zzc.codec.HessianCodecFactory;
 import com.zzc.handler.ServiceHandler;
-import com.zzc.main.RpcContext;
+import com.zzc.main.config.RpcContext;
 import org.apache.mina.core.service.IoAcceptor;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;

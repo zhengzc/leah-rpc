@@ -2,6 +2,7 @@ package com.zzc.main;
 
 import com.zzc.codec.HessianCodecFactory;
 import com.zzc.handler.ServiceHandler;
+import com.zzc.main.config.RpcContext;
 import org.apache.mina.core.service.IoAcceptor;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
@@ -37,7 +38,7 @@ public class RpcServer {
      * @throws IOException
      */
     public static void start() throws IOException {
-        if(RpcContext.exportServicesMap.size() == 0){
+        if(RpcContext.getExportServices().size() == 0){
             throw new IllegalArgumentException("no services is export,exportServices size is 0");
         }
         logger.info("RpcServer is starting!");

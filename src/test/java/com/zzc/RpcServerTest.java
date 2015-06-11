@@ -1,6 +1,6 @@
 package com.zzc;
 
-import com.zzc.main.RpcContext;
+import com.zzc.main.config.RpcContext;
 import com.zzc.main.RpcServer;
 import junit.framework.TestCase;
 import org.apache.log4j.Logger;

@@ -7,4 +7,6 @@ public interface UserServcie {
 	public UserBean query(int userId);
 	
 	public UserBean query(int userId,String userName);
+
+    public void testException();
 }
