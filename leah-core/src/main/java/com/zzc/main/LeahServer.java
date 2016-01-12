@@ -7,7 +7,6 @@ import com.zzc.util.NetUtil;
 import org.apache.mina.core.service.IoAcceptor;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
-import org.apache.mina.filter.executor.ExecutorFilter;
 import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by ying on 15/5/20.
@@ -36,9 +34,9 @@ public class LeahServer {
         ServerConfig serverConfig = leahServiceManager.getServerConfig();
 
         if(leahServiceManager.getServiceSize() == 0){
-            throw new IllegalArgumentException("no services is export,exportServices size is 0");
+            throw new IllegalArgumentException("不存在远程服务，远程服务个数为0");
         }
-        logger.info("LeahServer is starting!");
+        logger.info("LeahServer 开始启动!");
 
         acceptor = new NioSocketAcceptor();
         acceptor.getSessionConfig().setReadBufferSize(serverConfig.getReadBufferSize());//设置缓冲区大小
@@ -47,16 +45,18 @@ public class LeahServer {
         acceptor.getFilterChain().addLast("codec", new ProtocolCodecFilter(new HessianCodecFactory()));
         /**
          * 添加ExecutorFilter将业务线程与io线程分离
-         * 将来这里可以考虑做优化，ExecutorFilter中有很多参数可以调整
+         * 在服务端我们将采取手动在ServiceHandler中相应的方法中开启新的线程处理业务代码，不采用mina提供的这种方式
          */
-        acceptor.getFilterChain().addLast("exceutor",
-                new ExecutorFilter(
-                        serverConfig.getCoreServicePoolSize(),
-                        serverConfig.getMaxServicePoolSize(),
-                        60,
-                        TimeUnit.SECONDS
-                )
-        );
+        /*acceptor.getFilterChain().addLast("executor",new ExecutorFilter(
+                new ThreadPoolExecutor(
+                    serverConfig.getCoreServicePoolSize(),
+                    serverConfig.getMaxServicePoolSize(),
+                    60,
+                    TimeUnit.SECONDS,
+                    new LinkedBlockingQueue<Runnable>(serverConfig.getWorkQueueSize()),
+                    new NamedThreadFactory("leahRpcServices")),
+                IoEventType.MESSAGE_RECEIVED
+        ));*/
         //设置ioHandler处理业务逻辑
         acceptor.setHandler(new ServiceHandler());
 
@@ -71,7 +71,7 @@ public class LeahServer {
 
         InetAddress address = InetAddress.getLocalHost();
         String ip = address.getHostAddress();
-        logger.info("LeahServer is started,listen port is {}{}",ip,serverConfig.getPort());
+        logger.info("LeahServer 已启动,监听地址为 {}:{}",ip,serverConfig.getPort());
 
         return ip+":"+serverConfig.getPort();
     }

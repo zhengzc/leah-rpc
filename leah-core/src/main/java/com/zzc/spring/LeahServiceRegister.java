@@ -1,14 +1,29 @@
 package com.zzc.spring;
 
+import com.zzc.main.LeahServer;
 import com.zzc.main.LeahServiceManager;
 import com.zzc.main.config.ServerConfig;
+import com.zzc.register.Register;
+import com.zzc.register.UrlConnEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.IOException;
 import java.util.Map;
 
 /**
  * Created by ying on 15/6/26.
  */
 public class LeahServiceRegister {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    //间隔多久重新发布一次服务
+    private static final int PUBLISH_TIME = 15 * 1000;
+
+    @Autowired
+    private Register register;
+
     /**
      * 读取数据缓冲区大小
      */
@@ -39,7 +54,7 @@ public class LeahServiceRegister {
     private int workQueueSize;
     /**
      * 所有服务
-     * key 服务名 com.zzc.userService_1.0
+     * key 服务名 http://www.zhengzhichao.com.cn/com.dingmei.UserService_1.0
      * value 服务实例
      */
     private Map<String,Object> services;
@@ -49,8 +64,8 @@ public class LeahServiceRegister {
         this.idleTime = 10;
         this.port = 8825;
         this.autoSelectPort = true;
-        this.coreServicePoolSize = 150;
-        this.maxServicePoolSize = 500;
+        this.coreServicePoolSize = 50;
+        this.maxServicePoolSize = 300;
         this.workQueueSize = 300;
     }
 
@@ -76,9 +91,51 @@ public class LeahServiceRegister {
             String serviceUrl = entry.getKey();
             leahServiceManager.addService(serviceUrl,entry.getValue());
         }
+
+        //启动服务
+        try {
+            this.online();
+        } catch (IOException e) {
+            logger.error(e.getMessage(),e);
+        }
     }
 
+    /**
+     * 发布服务
+     */
+    private void publish(final String conn){
+        if(register != null){
+            //定时发布，防止被误删
+            Thread t = new Thread(){
+                @Override
+                public void run() {
+                    for(String serviceUrl : services.keySet()){
+                        logger.info("发布服务: {}", serviceUrl);
+                        UrlConnEntity urlConnEntity = new UrlConnEntity();
+                        urlConnEntity.setUrl(serviceUrl);
+                        urlConnEntity.setConn(conn);
+                        register.publish(urlConnEntity);
+                    }
 
+                    try {
+                        Thread.sleep(PUBLISH_TIME);
+                    } catch (InterruptedException e) {
+                        logger.error(e.getMessage(),e);
+                    }
+                }
+            };
+
+            t.start();
+        }
+    }
+
+    /**
+     * 启动服务
+     */
+    public void online() throws IOException {
+        String conn = LeahServer.start();
+        this.publish(conn);
+    }
 
     public int getReadBufferSize() {
         return readBufferSize;
@@ -142,5 +199,9 @@ public class LeahServiceRegister {
 
     public void setServices(Map<String, Object> services) {
         this.services = services;
+    }
+
+    public void setRegister(Register register) {
+        this.register = register;
     }
 }

@@ -4,11 +4,10 @@ import com.zzc.channel.ChannelSubject;
 import com.zzc.channel.Invoker;
 import com.zzc.channel.impl.DefaultInvoker;
 import com.zzc.exception.LeahException;
-import com.zzc.handler.ClientHandler;
 import com.zzc.main.config.CallTypeEnum;
 import com.zzc.main.config.InvokerConfig;
 import com.zzc.proxy.result.Result;
-import com.zzc.register.ConnManager;
+import com.zzc.register.ChannelManager;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 import org.slf4j.Logger;
@@ -52,13 +51,13 @@ public class ServiceInterceptor implements MethodInterceptor {
          * invoker对象传入channel列表
          * invoker中增加负载调用策略
          */
-        ConnManager connManager = ConnManager.getManager();
+        ChannelManager connManager = ChannelManager.getManager();
         ChannelSubject channel;
         try{
             channel = this.getChannel(connManager.getChannelSubjects(invokerConfig.getServiceUrl()));
         }catch (IllegalArgumentException e){
-            logger.error("can't find services:{}",invokerConfig.getServiceUrl());
-            throw new LeahException("can't find services:"+invokerConfig.getServiceUrl());
+            logger.error("找不到服务:{}",invokerConfig.getServiceUrl(),e);
+            throw new LeahException("找不到服务:"+invokerConfig.getServiceUrl());
         }
 
 		//参数类型列表
@@ -86,7 +85,8 @@ public class ServiceInterceptor implements MethodInterceptor {
             //正常返回
             return result.getResult();
         }else{
-            throw new IllegalArgumentException("error callType");
+            logger.error("错误的调用类型callType");
+            throw new IllegalArgumentException("错误的调用类型callType");
         }
 	}
 
@@ -97,7 +97,8 @@ public class ServiceInterceptor implements MethodInterceptor {
      */
     private ChannelSubject getChannel(List<ChannelSubject> channelSubjects){
         if(channelSubjects.size() == 0){
-            throw new IllegalArgumentException("ChannelSubject list size is 0");
+//            logger.error("channel列表为空，请确定服务已启动");
+            throw new IllegalArgumentException("channel列表为空，请确认对应服务是否已经启动");
         }
         int index = random.nextInt(channelSubjects.size());
         ChannelSubject channelSubject = channelSubjects.get(index);

@@ -1,13 +1,9 @@
 package com.zzc.main;
 
 import com.zzc.main.config.ServerConfig;
-import com.zzc.register.Register;
-import com.zzc.register.UrlConnEntity;
-import com.zzc.spring.SpringContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -15,7 +11,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * Created by ying on 15/6/29.
  */
 public class LeahServiceManager {
-    private final Logger logger = LoggerFactory.getLogger(LeahServiceManager.class);
+//    //间隔多久重新发布一次服务
+//    private static final int PUBLISH_TIME = 15 * 1000;
+    private static final Logger logger = LoggerFactory.getLogger(LeahServiceManager.class);
     /**
      * 服务的统一配置
      */
@@ -25,18 +23,13 @@ public class LeahServiceManager {
      */
     private Map<String,Object> services = new ConcurrentHashMap<String, Object>();
 
-    private static volatile LeahServiceManager leahServiceManager = null;
+    private static volatile LeahServiceManager leahServiceManager = new LeahServiceManager();
 
-    private LeahServiceManager(){}
+    private LeahServiceManager(){
+
+    }
 
     public static LeahServiceManager getManager(){
-        if(leahServiceManager == null){
-            synchronized (LeahServiceManager.class){
-                if(leahServiceManager == null){
-                    leahServiceManager = new LeahServiceManager();
-                }
-            }
-        }
         return leahServiceManager;
     }
 
@@ -64,34 +57,49 @@ public class LeahServiceManager {
         return services.size();
     }
 
-    /**
-     * 启动服务
-     */
-    public void online() throws IOException{
-        String conn = LeahServer.start();
-        this.publish(conn);
-    }
+//    /**
+//     * 启动服务
+//     */
+//    public void online() throws IOException{
+//        String conn = LeahServer.start();
+//        this.publish(conn);
+//    }
+//
+//    /**
+//     * 停止服务
+//     */
+//    public void offline() throws IOException{
+//        LeahServer.stop();
+//    }
 
-    /**
-     * 停止服务
-     */
-    public void offline() throws IOException{
-        LeahServer.stop();
-    }
-
-    /**
-     * 发布服务
-     */
-    public void publish(String conn){
-        Register register = SpringContext.getBean(Register.class);
-        for(String serviceUrl : this.services.keySet()){
-            logger.info("publish service url is : {}", serviceUrl);
-            UrlConnEntity  urlConnEntity = new UrlConnEntity();
-            urlConnEntity.setUrl(serviceUrl);
-            urlConnEntity.setConn(conn);
-            register.publish(urlConnEntity);
-        }
-    }
+//    /**
+//     * 发布服务
+//     */
+//    private void publish(final String conn){
+//        if(register != null){
+//            //定时发布，防止被误删
+//            Thread t = new Thread(){
+//                @Override
+//                public void run() {
+//                    for(String serviceUrl : services.keySet()){
+//                        logger.info("发布服务: {}", serviceUrl);
+//                        UrlConnEntity  urlConnEntity = new UrlConnEntity();
+//                        urlConnEntity.setUrl(serviceUrl);
+//                        urlConnEntity.setConn(conn);
+//                        register.publish(urlConnEntity);
+//                    }
+//
+//                    try {
+//                        Thread.sleep(PUBLISH_TIME);
+//                    } catch (InterruptedException e) {
+//                        logger.error(e.getMessage(),e);
+//                    }
+//                }
+//            };
+//
+//            t.start();
+//        }
+//    }
 
     public ServerConfig getServerConfig() {
         return serverConfig;

@@ -65,10 +65,9 @@ public class DefaultInvoker implements Invoker{
         //等待返回
         Boolean isSuccess = this.gate.await(this.invokerConfig.getTimeout(), TimeUnit.MILLISECONDS);
 
+        this.channel.remove(this);//只要通过闭锁，就删除在channel中注册的观察着
         if(!isSuccess){
             throw new TimeoutException("request timeout");
-        }else{//返回成功的话直接删除
-            this.channel.remove(this);
         }
         logger.debug("call success,token is {}",result.getToken());
         return this.result;
@@ -82,7 +81,7 @@ public class DefaultInvoker implements Invoker{
     @Override
     public void setResult(Result result) {
         logger.debug("set result,token is {}",result.getToken());
-        this.result = result;//这个要放在gate.countDown的前面，要不然坑死你
+        this.result = result;//这个要放在gate.countDown的前面，肯定是先设置返回值再通过闭锁
         this.gate.countDown();
     }
 

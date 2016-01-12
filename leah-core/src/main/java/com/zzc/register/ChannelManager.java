@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.zzc.channel.ChannelSubject;
 import com.zzc.main.LeahClient;
 import com.zzc.main.LeahReferManager;
-import com.zzc.spring.SpringContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,17 +13,14 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Created by ying on 15/7/1.
  * 链接管理器
- * 此类充当一个主题，允许订阅者订阅某个url的链接信息，并在url对应的链接发生变动的时候给订阅者发送通知
  */
-public class ConnManager {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+public class ChannelManager {
+    private static final Logger logger = LoggerFactory.getLogger(ChannelManager.class);
 
-    private final int SYNTIME = 60*1000;//多少秒同步一次
+    private final int SYNTIME = 10*1000;//多少秒同步一次
+    private final int CHECK_CHANNEL_TIMES = 10*1000;//间隔多久check一次
 
-    private final int CHECK_CHANNEL_TIMES = 30*1000;//30Scheck一次
-
-    private static volatile ConnManager connManager = null;
-
+    private static volatile ChannelManager connManager;
     private Register register = null;
 
     /**
@@ -34,7 +30,7 @@ public class ConnManager {
     /**
      * 缓存 192.168.8.10:8825->[com.zzc.userService_1.0,com.zzc.userService_2.0]的映射
      */
-    private Map<String,Set<String>> cacheConn2Urls = new ConcurrentHashMap<String, Set<String>>();
+//    private Map<String,Set<String>> cacheConn2Urls = new ConcurrentHashMap<String, Set<String>>();
 
     /**
      * 缓存mina服务器地址和端口
@@ -45,17 +41,23 @@ public class ConnManager {
     /**
      * 缓存url->channel映射
      */
-    private Map<String,List<ChannelSubject>> cacheChannel = new ConcurrentHashMap<String, List<ChannelSubject>>();
+//    private Map<String,List<ChannelSubject>> cacheChannel = new ConcurrentHashMap<String, List<ChannelSubject>>();
 
-
-
+    /**
+     * 缓存url->conns映射
+      */
+    private Map<String,Set<String>> cacheUrlConns = new ConcurrentHashMap<String, Set<String>>();
+    /**
+     * 缓存conn->channel映射
+     */
+    private Map<String,ChannelSubject>  cacheConnChannel = new ConcurrentHashMap<String, ChannelSubject>();
     /**
      * 当前客户端所调用的服务列表
      */
     private Set<String> urls;
 
-    private ConnManager(){
-        this.register = SpringContext.getBean(Register.class);
+    private ChannelManager(Register register){
+        this.register = register;
 
         //获取所有服务列表
         LeahReferManager leahReferManager = LeahReferManager.getManager();
@@ -64,12 +66,12 @@ public class ConnManager {
         logger.info("所需服务列表:{}", JSONObject.toJSONString(urls));
 
         //初始化
-        for(String url : urls){
-            cacheChannel.put(url,new ArrayList<ChannelSubject>());
-        }
+        /*for(String url : urls){
+//            cacheChannel.put(url,new ArrayList<ChannelSubject>());
+        }*/
 
         if(urls.size() == 0){
-            logger.info("无引入服务，定时同步任务退出");
+            logger.info("无需引入远程服务");
         }else{
             refreshService();
 
@@ -89,38 +91,50 @@ public class ConnManager {
             };
 
             thread.start();
-        }
 
 
+            //启动定时检查channel
+            Thread thread1 = new Thread(){
+                @Override
+                public void run() {
+                    try {
+                        Thread.sleep(CHECK_CHANNEL_TIMES);
+                    } catch (InterruptedException e) {
+                        logger.error(e.getMessage(),e);
+                    }
 
-        //启动定时检查channel
-        Thread thread1 = new Thread(){
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(CHECK_CHANNEL_TIMES);
-                } catch (InterruptedException e) {
-                    logger.error(e.getMessage(),e);
+                    checkChannel();
                 }
+            };
 
-                checkChannel();
+            thread1.start();
+        }
+    }
+
+    /**
+     * 初始化
+     * @param register
+     */
+    public static void init(Register register){
+        if(connManager == null){
+            synchronized (ChannelManager.class){
+                if(connManager == null){
+                    connManager = new ChannelManager(register);
+                }
             }
-        };
-
-        thread1.start();
+        }else{
+            logger.warn("ConnManager has already init,repeat call is invalid");
+        }
     }
 
     /**
      * 获取manager
      * @return
      */
-    public static ConnManager getManager(){
+    public static ChannelManager getManager(){
         if(connManager == null){
-            synchronized (ConnManager.class){
-                if (connManager == null){
-                    connManager = new ConnManager();
-                }
-            }
+            logger.error("connManager is null,please call init() first");
+            throw new NullPointerException("connManager is null,please call init() first");
         }
         return connManager;
     }
@@ -162,34 +176,41 @@ public class ConnManager {
      * @return
      */
     public List<ChannelSubject> getChannelSubjects(String url){
-        return this.cacheChannel.get(url);
+        List<ChannelSubject> subjects = new ArrayList<ChannelSubject>();
+
+        Set<String> conns = this.cacheUrlConns.get(url);
+        Iterator<String> it = conns.iterator();
+        while(it.hasNext()){
+            String conn = it.next();
+            ChannelSubject channel = this.cacheConnChannel.get(conn);
+            if(channel != null && channel.isConnected()){//判断此服务channel是否存在
+                subjects.add(this.cacheConnChannel.get(conn));
+            }else{//channel不存在就删除掉这个服务，针对于那些服务端异常退出而没删除掉的异常服务
+                logger.info("{}连接无效，清理注册的相关服务",conn);
+                it.remove();
+                this.register.unpublish(conn);
+            }
+        }
+        return subjects;
     }
 
     /**
-     * 客户端增加一个链接
+     * 添加一个channel进来
+     * 当客户端新建一个channel的时候加入进来
      * @param conn
      * @param channelSubject
      */
-    public void addChannelSubject(String conn,ChannelSubject channelSubject){
-        //获取对应的url列表
-        Set<String> urls = cacheConn2Urls.get(conn);
-        //每个url列表中增加对应的channel
-        for(String url : urls){
-            this.cacheChannel.get(url).add(channelSubject);
-        }
+    public void addChannel(String conn,ChannelSubject channelSubject){
+        this.cacheConnChannel.put(conn,channelSubject);
     }
 
     /**
      * 检查缓存的channel是否有效
      */
     private void checkChannel(){
-        for(List<ChannelSubject> channelSubjects : this.cacheChannel.values()){
-            Iterator<ChannelSubject> it = channelSubjects.iterator();
-            while(it.hasNext()){
-                ChannelSubject channelSubject = it.next();
-                if(!channelSubject.isConnected()){
-                    it.remove();
-                }
+        for(Map.Entry<String,ChannelSubject> entry : this.cacheConnChannel.entrySet()) {
+            if(!entry.getValue().isConnected()) {
+                this.cacheConnChannel.remove(entry.getKey());
             }
         }
     }
@@ -199,14 +220,15 @@ public class ConnManager {
      */
     private void refreshService(){
         logger.info("定时同步任务开始");
-        RegisterServiceBean serviceBean = register.syn(urls);//获取新的服务列表信息
+//        RegisterServiceBean serviceBean = register.syn(urls);//获取新的服务列表信息
+
         /**
          * 遍历所有服务，我们这里采用每次拉下的新的服务列表都增量更新到上次的服务列表中
          * 删除服务由客户端client探测链接的存活来动态删除服务
          * 这样的好处是当注册中心出现问题的时候，也不会影响到正常服务
          */
         //检测是否有新增服务
-        Set<String> newConns = serviceBean.getConnUrls().keySet();
+        Set<String> newConns = this.register.getAllConn(urls);
         Set<String> oldConns = allClient.keySet();
         if(!oldConns.containsAll(newConns)){//存在新服务
             newConns.removeAll(oldConns);//获取新服务
@@ -222,15 +244,20 @@ public class ConnManager {
             }
         }
 
+        //更新url->conns映射
+        for(String url : urls){
+            this.cacheUrlConns.put(url, this.register.getConns(url));
+        }
+
         //更新conn->urls映射
-        for(Map.Entry<String,Set<String>> entry : serviceBean.getConnUrls().entrySet()){
+        /*for(Map.Entry<String,Set<String>> entry : serviceBean.getConnUrls().entrySet()){
             if(cacheConn2Urls.containsKey(entry.getKey())){//已经存在
                 //更新列表
                 cacheConn2Urls.get(entry.getKey()).addAll(entry.getValue());
             }else{//不存在添加进去
                 cacheConn2Urls.put(entry.getKey(),entry.getValue());
             }
-        }
+        }*/
 
         //更新url->conns映射 更新cacheChannel
                     /*for(Map.Entry<String,Set<String>> entry : serviceBean.getUrlConns().entrySet()){

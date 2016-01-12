@@ -49,6 +49,7 @@ public class LeahProxyBeanFactory implements FactoryBean{
         //构建调用配置
         InvokerConfig invokerConfig = new InvokerConfig(this.serviceUrl,this.itfCls,timeout,CallTypeEnum.getCallType(this.callType));
 
+        //生成代理
         this.obj = ProxyFactory.getProxy(invokerConfig);
 
         invokerConfig.setRef(this.obj);

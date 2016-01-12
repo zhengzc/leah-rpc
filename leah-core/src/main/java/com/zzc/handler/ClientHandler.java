@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.zzc.channel.ChannelSubject;
 import com.zzc.channel.impl.DefaultChannelSubject;
 import com.zzc.proxy.result.Result;
-import com.zzc.register.ConnManager;
+import com.zzc.register.ChannelManager;
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IoSession;
 import org.slf4j.Logger;
@@ -71,7 +71,7 @@ public class ClientHandler extends IoHandlerAdapter{
         //初始化通道
         channelSubject = new DefaultChannelSubject(session);
         //将channel增加到manager中
-        ConnManager.getManager().addChannelSubject(this.conn,channelSubject);
+        ChannelManager.getManager().addChannel(this.conn,channelSubject);
 
         /**
          * 为注册接口生成动态代理

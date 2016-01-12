@@ -16,8 +16,13 @@ public class UserServiceImpl implements UserService {
         logger.info("---add--->"+JSONObject.toJSONString(userBean));
 	}
 	
-	public UserBean query(int userId){
-		UserBean userBean = new UserBean(userId);
+	public UserBean query(int userId) {
+        try {
+            Thread.sleep(1000*2);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        UserBean userBean = new UserBean(userId);
 		logger.info("---query--->"+JSONObject.toJSONString(userBean));
 		return userBean;
 	}

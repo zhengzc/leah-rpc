@@ -5,6 +5,7 @@ import com.zzc.main.config.ServerConfig;
 import com.zzc.proxy.Invocation;
 import com.zzc.proxy.ProxyFactory;
 import com.zzc.proxy.result.impl.DefaultResult;
+import com.zzc.util.NamedThreadFactory;
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
@@ -35,7 +36,8 @@ public class ServiceHandler extends IoHandlerAdapter {
                 serverConfig.getMaxServicePoolSize(),
                 60,
                 TimeUnit.SECONDS,
-                new LinkedBlockingQueue<Runnable>(serverConfig.getWorkQueueSize())
+                new LinkedBlockingQueue<Runnable>(serverConfig.getWorkQueueSize()),
+                new NamedThreadFactory("leahRpcServices")
         );
     }
 

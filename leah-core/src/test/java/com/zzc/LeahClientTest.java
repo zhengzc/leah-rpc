@@ -7,6 +7,8 @@ import com.zzc.main.config.CallTypeEnum;
 import com.zzc.main.config.InvokerConfig;
 import com.zzc.proxy.ServiceFutureFactory;
 import com.zzc.proxy.result.Result;
+import com.zzc.register.ChannelManager;
+import com.zzc.register.DefaultRegister;
 import junit.framework.TestCase;
 import org.junit.Test;
 
@@ -25,16 +27,18 @@ public class LeahClientTest extends TestCase {
     @Test
     public void testRpcClient() throws Exception{
         LeahReferManager leahReferManager = LeahReferManager.getManager();
-        InvokerConfig invokerConfig = leahReferManager.addInvoker("http://www.zhengzhichao.com.cn/com.zzc.UserService_1.0",UserService.class);
-        LeahClient leahClient = new LeahClient("127.0.0.1",8825);
-        leahClient.start();
+        leahReferManager.addInvoker("http://www.zhengzhichao.com.cn/com.zzc.UserService_1.0",UserService.class);
 
+        DefaultRegister defaultRegister = new DefaultRegister();
+        defaultRegister.publish("127.0.0.1:8825","http://www.zhengzhichao.com.cn/com.zzc.UserService_1.0");
+        ChannelManager.init(defaultRegister);
         //模拟调用
         int i = 0;
         while(i < 1) {
-            UserService userService = (UserService)leahReferManager.getInvoker(invokerConfig.getServiceUrl()).getRef();
+            UserService userService = (UserService)leahReferManager.getInvoker("http://www.zhengzhichao.com.cn/com.zzc.UserService_1.0").getRef();
 
             System.out.println("****开始第" + i + "次调用****");
+            userService.add(new UserBean(3333333));
             userService.testException();
             System.out.println("****第" + i + "次调用结束****");
             i++;

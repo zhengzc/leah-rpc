@@ -32,4 +32,24 @@ public class UrlConnEntity {
     public void setConn(String conn) {
         this.conn = conn;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof UrlConnEntity)) return false;
+
+        UrlConnEntity that = (UrlConnEntity) o;
+
+        if (!conn.equals(that.conn)) return false;
+        if (!url.equals(that.url)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = url.hashCode();
+        result = 31 * result + conn.hashCode();
+        return result;
+    }
 }

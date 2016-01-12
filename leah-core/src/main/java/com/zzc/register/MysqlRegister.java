@@ -1,6 +1,7 @@
 package com.zzc.register;
 
 import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import java.util.*;
@@ -10,20 +11,27 @@ import java.util.*;
  * mysql通讯的注册者
  *
  * CREATE TABLE `leahservice` (
- `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
  `conn` varchar(100) NOT NULL DEFAULT '' COMMENT '连接信息',
- `url` varchar(300) NOT NULL DEFAULT '' COMMENT '服务url',
- `adddate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
- PRIMARY KEY (`id`)
- ) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+ `url` varchar(100) NOT NULL DEFAULT '' COMMENT '服务url',
+ `updateTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+ `uuid` varchar(100) NOT NULL DEFAULT '' COMMENT '注册者唯一标示',
+ PRIMARY KEY (`conn`,`url`)
+ ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
  */
 public class MysqlRegister implements Register {
     private NamedParameterJdbcTemplate jdbcTemplate = null;
 
-    private final String insertServiceSql = "INSERT INTO leahservice (conn,url) value (:conn,:url)";
+    private final String upsertServiceSql = "REPLACE INTO leahservice VALUES (:conn,:url,now(),:uuid)";
     private final String delServiceSql = "DELETE FROM leahservice WHERE conn=:conn and url=:url";
-    private final String queryAllSql = "SELECT id,conn,url FROM leahservice WHERE url IN (:urls)";
+    private final String queryAllSql = "SELECT conn,url FROM leahservice WHERE url IN (:urls)";
     private final String delServiceByConnSql = "DELETE FROM leahservice WHERE conn=:conn";
+    private final String queryConnsByUrl = "SELECT conn FROM leahservice WHERE url = :url";
+    private final String delServiceByConnAndUUID = "DELETE FROM leahservice WHERE conn=:conn AND uuid <> :uuid";
+
+    /**
+     * 用来标示每一个服务发布者的唯一一次发布id
+     */
+    private String uuid;
 
 
     public MysqlRegister(String connectURI,String userName,String password){
@@ -38,17 +46,24 @@ public class MysqlRegister implements Register {
         ds.setMaxIdle(10);
         ds.setMaxWait(1000);
         jdbcTemplate = new NamedParameterJdbcTemplate(ds);
+
+        uuid = UUID.randomUUID().toString();
     }
 
     @Override
     public void publish(UrlConnEntity urlConnEntity) {
+        if(StringUtils.isNotBlank(urlConnEntity.getConn())){//每次发布服务都删除之前的老服务
+            Map<String,Object> delParam = new HashMap<String, Object>();
+            delParam.put("conn",urlConnEntity.getConn());
+            delParam.put("uuid",this.uuid);
+            this.jdbcTemplate.update(delServiceByConnAndUUID,delParam);
+        }
+
         Map<String,Object> param = new HashMap<String, Object>();
         param.put("conn",urlConnEntity.getConn());
-
-        jdbcTemplate.update(delServiceByConnSql,param);
-
         param.put("url",urlConnEntity.getUrl());
-        jdbcTemplate.update(insertServiceSql,param);
+        param.put("uuid",this.uuid);
+        jdbcTemplate.update(upsertServiceSql,param);
     }
 
     @Override
@@ -60,6 +75,12 @@ public class MysqlRegister implements Register {
     }
 
     @Override
+    public void unpublish(String conn) {
+        Map<String,Object> param = new HashMap<String, Object>();
+        param.put("conn",conn);
+        jdbcTemplate.update(delServiceByConnSql,param);
+    }
+/*@Override
     public RegisterServiceBean syn(Set<String> urls) {
         Map<String,Object> param = new HashMap<String, Object>();
         param.put("urls",urls);
@@ -92,5 +113,32 @@ public class MysqlRegister implements Register {
         registerServiceBean.setUrlConns(url2Conns);
 
         return registerServiceBean;
+    }*/
+
+    @Override
+    public Set<String> getAllConn(Set<String> urls) {
+        Set<String> ret = new HashSet<String>();
+
+        Map<String,Object> param = new HashMap<String, Object>();
+        param.put("urls",urls);
+        List<Map<String,Object>> services = this.jdbcTemplate.queryForList(queryAllSql,param);
+
+        for(Map<String,Object> map : services){
+            ret.add(((String)map.get("conn")).trim());
+        }
+        return ret;
+    }
+
+    @Override
+    public Set<String> getConns(String url) {
+        Set<String> ret = new HashSet<String>();
+
+        Map<String,Object> param = new HashMap<String, Object>();
+        param.put("url",url);
+        List<String> services = this.jdbcTemplate.queryForList(queryConnsByUrl, param,String.class);
+
+        ret.addAll(services);
+
+        return ret;
     }
 }

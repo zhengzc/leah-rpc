@@ -29,7 +29,8 @@ public class LeahRegisterFactory extends SpringContext implements FactoryBean{
     @Override
     public Object getObject() throws Exception {
         if(this.address.startsWith("mysql")){
-            return new MysqlRegister("jdbc:"+address,userName,password);
+            Register register = new MysqlRegister("jdbc:"+address,userName,password);
+            return register;
         }else{
             throw new IllegalArgumentException("LeahRegisterFactory can not analysis address like "+this.address);
         }

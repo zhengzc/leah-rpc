@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class LeahReferManager {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private static volatile LeahReferManager leahReferManager = null;
+    private static volatile LeahReferManager leahReferManager = new LeahReferManager();
 
     /**
      * 调用者
@@ -28,13 +28,6 @@ public class LeahReferManager {
     private LeahReferManager(){}
 
     public static LeahReferManager getManager(){
-        if(leahReferManager == null){
-            synchronized (LeahReferManager.class){
-                if(leahReferManager == null){
-                    leahReferManager = new LeahReferManager();
-                }
-            }
-        }
         return leahReferManager;
     }
 

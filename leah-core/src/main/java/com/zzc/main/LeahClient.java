@@ -2,7 +2,6 @@ package com.zzc.main;
 
 import com.zzc.codec.HessianCodecFactory;
 import com.zzc.handler.ClientHandler;
-import com.zzc.register.ConnManager;
 import org.apache.mina.core.RuntimeIoException;
 import org.apache.mina.core.filterchain.IoFilterAdapter;
 import org.apache.mina.core.future.ConnectFuture;
@@ -14,8 +13,8 @@ import org.apache.mina.transport.socket.nio.NioSocketConnector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.ConnectException;
 import java.net.InetSocketAddress;
+import java.util.concurrent.Executors;
 
 /**
  * Created by ying on 15/5/20.
@@ -49,7 +48,7 @@ public class LeahClient {
      */
     public void start(){
         try{
-            logger.info("leahClient start-->ip:{},port:{},connectTimeoutMillis:{}",new Object[]{ip,port,connectTimeoutMillis});
+            logger.info("leahClient 开始启动-->ip:{},port:{},connectTimeoutMillis:{}",new Object[]{ip,port,connectTimeoutMillis});
 
             //启动nio
             connector.setConnectTimeoutMillis(connectTimeoutMillis);//连接超时时间
@@ -73,21 +72,21 @@ public class LeahClient {
             connector.getFilterChain().addLast("codec", new ProtocolCodecFilter(new HessianCodecFactory()));
             /**
              * 添加ExecutorFilter将业务线程与io线程分离
-             * 将来这里可以考虑做优化，ExecutorFilter中有很多参数可以调整
+             * handler中的方法将在新的线程池中调度，作为调用方，不限制调用线程池的大小等参数
              */
-            connector.getFilterChain().addLast("exceutor", new ExecutorFilter());
+            connector.getFilterChain().addLast("exceutor", new ExecutorFilter(Executors.newCachedThreadPool()));
             connector.setHandler(new ClientHandler(ip+":"+port));
 
             //连接
             ConnectFuture connectFuture =  connector.connect(new InetSocketAddress(ip,port));
             //等待连接创建成功
-//            connectFuture.awaitUninterruptibly();
+            connectFuture.awaitUninterruptibly(1000*5);
 
-//            IoSession session = connectFuture.getSession();
+            IoSession session = connectFuture.getSession();
 
-//            if(session.isConnected()){//连接成功
-//                logger.info("leahClient connected,host:{},port:{}",this.ip,this.port);
-//            }
+            if(session.isConnected()){//连接成功
+                logger.info("leahClient connected,host:{},port:{}",this.ip,this.port);
+            }
 
         }catch (RuntimeIoException e){
             logger.error(e.getMessage(),e);
@@ -104,7 +103,7 @@ public class LeahClient {
             connectFuture.awaitUninterruptibly();
             IoSession session = connectFuture.getSession();
             if(session.isConnected()){//连接成功
-                logger.info("leahClient reconnected,host:{},port:{}",ip,port);
+                logger.info("leahClient 重新连接成功,host:{},port:{}",ip,port);
                 return true;
             }
             return false;
