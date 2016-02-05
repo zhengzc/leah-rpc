@@ -8,7 +8,7 @@ import org.springframework.beans.factory.FactoryBean;
  * Created by ying on 15/7/8.
  * 注册中心工厂
  */
-public class LeahRegisterFactory extends SpringContext implements FactoryBean{
+public class LeahRegisterFactory extends SpringContext implements FactoryBean {
     /**
      * 注册中心地址
      * 目前仅支持mysql注册中心
@@ -22,19 +22,20 @@ public class LeahRegisterFactory extends SpringContext implements FactoryBean{
     private String userName;
     private String password;
 
-    public LeahRegisterFactory(){
+    public LeahRegisterFactory() {
 
     }
 
     @Override
     public Object getObject() throws Exception {
-        if(this.address.startsWith("mysql")){
-            Register register = new MysqlRegister("jdbc:"+address,userName,password);
-            return register;
-        }else{
-            throw new IllegalArgumentException("LeahRegisterFactory can not analysis address like "+this.address);
+        Register register = null;
+        if (this.address.startsWith("mysql")) {
+            register = new MysqlRegister("jdbc:" + address, userName, password);
+        } else {
+            throw new IllegalArgumentException("LeahRegisterFactory can not analysis address like " + this.address);
         }
-
+//        ChannelManager.init(register);
+        return register;
     }
 
     @Override

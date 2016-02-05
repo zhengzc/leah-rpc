@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+
+    <bean class="com.zzc.spring.LeahRegisterFactory" lazy-init="false">
+        <property name="address" value="mysql://127.0.0.1:3306/leah"></property>
+        <property name="userName" value="zhengzc"></property>
+        <property name="password" value="zhengzc123"></property>
+    </bean>
+
+    <bean id="userService" class="com.zzc.spring.LeahProxyBeanFactory" lazy-init="false" init-method="init">
+        <property name="serviceUrl" value="http://www.zhengzhichao.com.cn/service.UserService_1.0"></property>
+        <property name="itf" value="service.UserServiceImpl"></property>
+    </bean>
+
+</beans>

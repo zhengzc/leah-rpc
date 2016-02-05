@@ -9,18 +9,21 @@ import java.util.Set;
 public interface Register {
     /**
      * 发布服务,幂等操作，即便是重复调用，结果也一样
+     *
      * @param urlConnEntity
      */
     public void publish(UrlConnEntity urlConnEntity);
 
     /**
      * 取消发布服务
+     *
      * @param urlConnEntity
      */
     public void unpublish(UrlConnEntity urlConnEntity);
 
     /**
      * 取消发布服务
+     *
      * @param conn 127.0.0.1:8825
      */
     public void unpublish(String conn);
@@ -34,6 +37,7 @@ public interface Register {
 
     /**
      * 获取所有的服务链接地址列表
+     *
      * @param urls 服务keys
      * @return
      */
@@ -41,6 +45,7 @@ public interface Register {
 
     /**
      * 获取某一个服务的链接地址
+     *
      * @param url 服务key
      * @return
      */

@@ -9,14 +9,14 @@ import java.util.*;
 /**
  * Created by ying on 15/7/8.
  * mysql通讯的注册者
- *
+ * <p/>
  * CREATE TABLE `leahservice` (
- `conn` varchar(100) NOT NULL DEFAULT '' COMMENT '连接信息',
- `url` varchar(100) NOT NULL DEFAULT '' COMMENT '服务url',
- `updateTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
- `uuid` varchar(100) NOT NULL DEFAULT '' COMMENT '注册者唯一标示',
- PRIMARY KEY (`conn`,`url`)
- ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+ * `conn` varchar(100) NOT NULL DEFAULT '' COMMENT '连接信息',
+ * `url` varchar(100) NOT NULL DEFAULT '' COMMENT '服务url',
+ * `updateTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+ * `uuid` varchar(100) NOT NULL DEFAULT '' COMMENT '注册者唯一标示',
+ * PRIMARY KEY (`conn`,`url`)
+ * ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
  */
 public class MysqlRegister implements Register {
     private NamedParameterJdbcTemplate jdbcTemplate = null;
@@ -34,7 +34,7 @@ public class MysqlRegister implements Register {
     private String uuid;
 
 
-    public MysqlRegister(String connectURI,String userName,String password){
+    public MysqlRegister(String connectURI, String userName, String password) {
         BasicDataSource ds = new BasicDataSource();
         ds.setDriverClassName("com.mysql.jdbc.Driver");
         ds.setUsername(userName);
@@ -52,33 +52,33 @@ public class MysqlRegister implements Register {
 
     @Override
     public void publish(UrlConnEntity urlConnEntity) {
-        if(StringUtils.isNotBlank(urlConnEntity.getConn())){//每次发布服务都删除之前的老服务
-            Map<String,Object> delParam = new HashMap<String, Object>();
-            delParam.put("conn",urlConnEntity.getConn());
-            delParam.put("uuid",this.uuid);
-            this.jdbcTemplate.update(delServiceByConnAndUUID,delParam);
+        if (StringUtils.isNotBlank(urlConnEntity.getConn())) {//每次发布服务都删除之前的老服务
+            Map<String, Object> delParam = new HashMap<String, Object>();
+            delParam.put("conn", urlConnEntity.getConn());
+            delParam.put("uuid", this.uuid);
+            this.jdbcTemplate.update(delServiceByConnAndUUID, delParam);
         }
 
-        Map<String,Object> param = new HashMap<String, Object>();
-        param.put("conn",urlConnEntity.getConn());
-        param.put("url",urlConnEntity.getUrl());
-        param.put("uuid",this.uuid);
-        jdbcTemplate.update(upsertServiceSql,param);
+        Map<String, Object> param = new HashMap<String, Object>();
+        param.put("conn", urlConnEntity.getConn());
+        param.put("url", urlConnEntity.getUrl());
+        param.put("uuid", this.uuid);
+        jdbcTemplate.update(upsertServiceSql, param);
     }
 
     @Override
     public void unpublish(UrlConnEntity urlConnEntity) {
-        Map<String,Object> param = new HashMap<String, Object>();
-        param.put("conn",urlConnEntity.getConn());
-        param.put("url",urlConnEntity.getUrl());
-        jdbcTemplate.update(delServiceSql,param);
+        Map<String, Object> param = new HashMap<String, Object>();
+        param.put("conn", urlConnEntity.getConn());
+        param.put("url", urlConnEntity.getUrl());
+        jdbcTemplate.update(delServiceSql, param);
     }
 
     @Override
     public void unpublish(String conn) {
-        Map<String,Object> param = new HashMap<String, Object>();
-        param.put("conn",conn);
-        jdbcTemplate.update(delServiceByConnSql,param);
+        Map<String, Object> param = new HashMap<String, Object>();
+        param.put("conn", conn);
+        jdbcTemplate.update(delServiceByConnSql, param);
     }
 /*@Override
     public RegisterServiceBean syn(Set<String> urls) {
@@ -119,12 +119,12 @@ public class MysqlRegister implements Register {
     public Set<String> getAllConn(Set<String> urls) {
         Set<String> ret = new HashSet<String>();
 
-        Map<String,Object> param = new HashMap<String, Object>();
-        param.put("urls",urls);
-        List<Map<String,Object>> services = this.jdbcTemplate.queryForList(queryAllSql,param);
+        Map<String, Object> param = new HashMap<String, Object>();
+        param.put("urls", urls);
+        List<Map<String, Object>> services = this.jdbcTemplate.queryForList(queryAllSql, param);
 
-        for(Map<String,Object> map : services){
-            ret.add(((String)map.get("conn")).trim());
+        for (Map<String, Object> map : services) {
+            ret.add(((String) map.get("conn")).trim());
         }
         return ret;
     }
@@ -133,9 +133,9 @@ public class MysqlRegister implements Register {
     public Set<String> getConns(String url) {
         Set<String> ret = new HashSet<String>();
 
-        Map<String,Object> param = new HashMap<String, Object>();
-        param.put("url",url);
-        List<String> services = this.jdbcTemplate.queryForList(queryConnsByUrl, param,String.class);
+        Map<String, Object> param = new HashMap<String, Object>();
+        param.put("url", url);
+        List<String> services = this.jdbcTemplate.queryForList(queryConnsByUrl, param, String.class);
 
         ret.addAll(services);
 

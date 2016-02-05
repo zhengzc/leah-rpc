@@ -13,7 +13,7 @@
     <bean class="com.zzc.spring.LeahServiceRegister" init-method="init" lazy-init="false">
         <property name="services">
             <map>
-                <entry key="http://www.zhengzhichao.com.cn/com.zzc.UserService_1.0" value-ref="userService" />
+                <entry key="http://www.zhengzhichao.com.cn/com.zzc.UserService_1.0" value-ref="userService"/>
             </map>
         </property>
     </bean>

@@ -9,7 +9,7 @@ package com.alibaba.study.rpc.test;
 
 /**
  * HelloService
- * 
+ *
  * @author william.liangf
  */
 public interface HelloService {

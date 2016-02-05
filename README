@@ -22,3 +22,10 @@
 20150612
     1.对ServiceHandler中的线程池优化一下，采用cpu核数+1的方式限定线程池大小，防止线程数过多导致性能降低
     2.与spring进行集成
+
+参数相关
+使用cms垃圾回收器
+-server -Xmx2g -Xms2g -Xmn256m -XX:PermSize=128m -Xss256k -XX:+DisableExplicitGC -XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:+UseCMSCompactAtFullCollection -XX:LargePageSizeInBytes=128m -XX:+UseFastAccessorMethods -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=70
+
+使用g1回收器
+-XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:InitiatingHeapOccupancyPercent=45

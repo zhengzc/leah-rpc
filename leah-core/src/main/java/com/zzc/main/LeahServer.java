@@ -6,6 +6,7 @@ import com.zzc.main.config.ServerConfig;
 import com.zzc.util.NetUtil;
 import org.apache.mina.core.service.IoAcceptor;
 import org.apache.mina.core.session.IdleStatus;
+import org.apache.mina.core.session.IoSessionConfig;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 import org.slf4j.Logger;
@@ -26,21 +27,25 @@ public class LeahServer {
 
     /**
      * 启动服务
+     *
+     * @return conn
      * @throws IOException
-     * @return  conn
      */
     public static String start() throws IOException {
         LeahServiceManager leahServiceManager = LeahServiceManager.getManager();
         ServerConfig serverConfig = leahServiceManager.getServerConfig();
 
-        if(leahServiceManager.getServiceSize() == 0){
+        if (leahServiceManager.getServiceSize() == 0) {
             throw new IllegalArgumentException("不存在远程服务，远程服务个数为0");
         }
         logger.info("LeahServer 开始启动!");
 
         acceptor = new NioSocketAcceptor();
-        acceptor.getSessionConfig().setReadBufferSize(serverConfig.getReadBufferSize());//设置缓冲区大小
-        acceptor.getSessionConfig().setIdleTime(IdleStatus.BOTH_IDLE, serverConfig.getIdleTime());//设置多长时间进入空闲
+        IoSessionConfig sessionConfig = acceptor.getSessionConfig();
+//        sessionConfig.setReadBufferSize(serverConfig.getReadBufferSize());
+        sessionConfig.setMinReadBufferSize(1024);
+        serverConfig.setMaxServicePoolSize(1024 * 512);
+        sessionConfig.setIdleTime(IdleStatus.BOTH_IDLE, serverConfig.getIdleTime());//设置多长时间进入空闲
         //添加hession的编码和解码过滤器
         acceptor.getFilterChain().addLast("codec", new ProtocolCodecFilter(new HessianCodecFactory()));
         /**
@@ -62,24 +67,24 @@ public class LeahServer {
 
 //        acceptor.setReuseAddress(true);//防止重启的时候端口被占用{
         int port = serverConfig.getPort();
-        if(serverConfig.getAutoSelectPort()){//自动选择端口
-            while(NetUtil.isLoclePortUsing(port)){//端口被占用就+1接着重试
+        if (serverConfig.getAutoSelectPort()) {//自动选择端口
+            while (NetUtil.isLoclePortUsing(port)) {//端口被占用就+1接着重试
                 port++;
             }
         }
-        acceptor.bind(new InetSocketAddress(serverConfig.getPort()));//绑定端口
+        acceptor.bind(new InetSocketAddress(port));//绑定端口
 
         InetAddress address = InetAddress.getLocalHost();
         String ip = address.getHostAddress();
-        logger.info("LeahServer 已启动,监听地址为 {}:{}",ip,serverConfig.getPort());
+        logger.info("LeahServer 已启动,监听地址为 {}:{}", ip, port);
 
-        return ip+":"+serverConfig.getPort();
+        return ip + ":" + port;
     }
 
     /**
      * 停止服务
      */
-    public static void stop(){
+    public static void stop() {
         acceptor.unbind();//解绑端口
         acceptor.dispose(true);//停止服务
     }

@@ -1,9 +1,10 @@
 package com.zzc.spring;
 
+import com.dianping.cat.Cat;
 import com.zzc.main.LeahReferManager;
 import com.zzc.main.LeahServer;
 import com.zzc.main.LeahServiceManager;
-import com.zzc.register.ChannelManager;
+import com.zzc.register.ConnManager;
 import com.zzc.register.Register;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,8 +21,8 @@ import org.springframework.context.event.ContextStoppedEvent;
  * Created by ying on 15/7/8.
  * 保存applictionContext的类
  */
-public class SpringContext implements ApplicationContextAware,ApplicationListener {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+public class SpringContext implements ApplicationContextAware, ApplicationListener {
+    private final Logger logger = LoggerFactory.getLogger(SpringContext.class);
 
     private static ApplicationContext appContext;
 
@@ -32,41 +33,45 @@ public class SpringContext implements ApplicationContextAware,ApplicationListene
 
     /**
      * 获取bean
+     *
      * @param cls
      * @param <T>
      * @return
      */
-    public static <T>T getBean(Class<T> cls){
+    public static <T> T getBean(Class<T> cls) {
         return appContext.getBean(cls);
     }
 
     /**
      * 获取bean
+     *
      * @param id
      * @param <T>
      * @return
      */
-    public static <T> T getBean(String id){
-        return (T)appContext.getBean(id);
+    public static <T> T getBean(String id) {
+        return (T) appContext.getBean(id);
     }
+
     @Override
-    public void onApplicationEvent(ApplicationEvent event){
-        logger.info("spring Event is {}",event.toString());
+    public void onApplicationEvent(ApplicationEvent event) {
+        logger.info("spring Event is {}", event.toString());
         Register register = SpringContext.getBean(Register.class);
 
         LeahServiceManager leahServiceManager = LeahServiceManager.getManager();
 
         LeahReferManager leahReferManager = LeahReferManager.getManager();
-        if(register == null){
+        if (register == null) {
             throw new NullPointerException("register没有初始化");
         }
 
-        if(event instanceof ContextRefreshedEvent){//容器刷新事件
+        if (event instanceof ContextRefreshedEvent) {//容器刷新事件
             logger.info("spring contextRefreshedEvent");
-            ContextRefreshedEvent refreshEvent = (ContextRefreshedEvent)event;
-            if(refreshEvent.getApplicationContext().getParent() == null){//防止事件重复执行
+            ContextRefreshedEvent refreshEvent = (ContextRefreshedEvent) event;
+            if (refreshEvent.getApplicationContext().getParent() == null) {//防止事件重复执行
                 //初始化客户端链接管理
-                ChannelManager.init(register);
+                ConnManager.init(register);
+                Cat.getInstance();
 
 //                try {
 //                    if(leahServiceManager.getServiceSize() != 0){//存在服务上线
@@ -76,8 +81,8 @@ public class SpringContext implements ApplicationContextAware,ApplicationListene
 //                    logger.error(e.getMessage(),e);
 //                }
             }
-        }else if(event instanceof ContextClosedEvent || event instanceof ContextStoppedEvent){
-            if(leahServiceManager.getServiceSize() != 0) {//存在服务
+        } else if (event instanceof ContextClosedEvent || event instanceof ContextStoppedEvent) {
+            if (leahServiceManager.getServiceSize() != 0) {//存在服务
 //                    leahServiceManager.offline();
                 LeahServer.stop();
             }

@@ -7,7 +7,10 @@ package com.zzc.main.config;
 public class ServerConfig {
     /**
      * 读取数据缓冲区大小
+     *
+     * @deprecated 不再设置缓冲区大小 mina自动调整即可 或者将来可以设置最大缓冲区最小缓冲区
      */
+    @Deprecated
     private int readBufferSize;
     /**
      * 通道多长时间进入空闲状态
@@ -34,10 +37,12 @@ public class ServerConfig {
      */
     private int workQueueSize;
 
+    @Deprecated
     public int getReadBufferSize() {
         return readBufferSize;
     }
 
+    @Deprecated
     public void setReadBufferSize(int readBufferSize) {
         this.readBufferSize = readBufferSize;
     }

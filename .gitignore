@@ -1,0 +1,17 @@
+.settings/
+.classpath
+.project
+bin/
+target/
+classes/
+webapps/
+.war
+*.iml
+*.ipr
+*.iws
+*.class
+
+# Package Files #
+*.jar
+*.war
+*.ear

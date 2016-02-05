@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Created by ying on 15/6/29.
  */
 public class LeahServiceManager {
-//    //间隔多久重新发布一次服务
+    //    //间隔多久重新发布一次服务
 //    private static final int PUBLISH_TIME = 15 * 1000;
     private static final Logger logger = LoggerFactory.getLogger(LeahServiceManager.class);
     /**
@@ -21,15 +21,15 @@ public class LeahServiceManager {
     /**
      * 所有服务存储在这里
      */
-    private Map<String,Object> services = new ConcurrentHashMap<String, Object>();
+    private Map<String, Object> services = new ConcurrentHashMap<String, Object>();
 
     private static volatile LeahServiceManager leahServiceManager = new LeahServiceManager();
 
-    private LeahServiceManager(){
+    private LeahServiceManager() {
 
     }
 
-    public static LeahServiceManager getManager(){
+    public static LeahServiceManager getManager() {
         return leahServiceManager;
     }
 
@@ -37,23 +37,24 @@ public class LeahServiceManager {
      * @param serviceUrl
      * @param obj
      */
-    public void addService(String serviceUrl,Object obj){
-        services.put(serviceUrl,obj);
+    public void addService(String serviceUrl, Object obj) {
+        services.put(serviceUrl, obj);
     }
 
     /**
      * @param serviceUrl
      * @return
      */
-    public Object getService(String serviceUrl){
+    public Object getService(String serviceUrl) {
         return services.get(serviceUrl);
     }
 
     /**
      * 获取注册服务个数
+     *
      * @return
      */
-    public int getServiceSize(){
+    public int getServiceSize() {
         return services.size();
     }
 

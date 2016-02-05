@@ -15,9 +15,9 @@ public class URL {
     private String port;
     private String path;
     private String queryStr;
-    private Map<String,String> param;
+    private Map<String, String> param;
 
-    public URL(String url){
+    public URL(String url) {
         this.url = url;
 
     }

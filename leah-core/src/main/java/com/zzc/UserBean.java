@@ -5,55 +5,55 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-public class UserBean implements Serializable{
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 3027976208247255709L;
-	
-	private String userName;
-	private int userId;
-	private Date birthday;
-	private Map<String,String> attr;
-	
-	public UserBean(int userId){
-		this.userName = "zhengzhichao";
-		this.userId = userId;
-		this.birthday = new Date();
-		Map<String, String> attr = new HashMap<String, String>();
-		attr.put("attr1", "good");
-		this.attr = attr;
-	}
+public class UserBean implements Serializable {
+    /**
+     *
+     */
+    private static final long serialVersionUID = 3027976208247255709L;
 
-	public String getUserName() {
-		return userName;
-	}
+    private String userName;
+    private int userId;
+    private Date birthday;
+    private Map<String, String> attr;
 
-	public void setUserName(String userName) {
-		this.userName = userName;
-	}
+    public UserBean(int userId) {
+        this.userName = "zhengzhichao";
+        this.userId = userId;
+        this.birthday = new Date();
+        Map<String, String> attr = new HashMap<String, String>();
+        attr.put("attr1", "good");
+        this.attr = attr;
+    }
 
-	public int getUserId() {
-		return userId;
-	}
+    public String getUserName() {
+        return userName;
+    }
 
-	public void setUserId(int userId) {
-		this.userId = userId;
-	}
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
 
-	public Date getBirthday() {
-		return birthday;
-	}
+    public int getUserId() {
+        return userId;
+    }
 
-	public void setBirthday(Date birthday) {
-		this.birthday = birthday;
-	}
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
 
-	public Map<String, String> getAttr() {
-		return attr;
-	}
+    public Date getBirthday() {
+        return birthday;
+    }
 
-	public void setAttr(Map<String, String> attr) {
-		this.attr = attr;
-	}
+    public void setBirthday(Date birthday) {
+        this.birthday = birthday;
+    }
+
+    public Map<String, String> getAttr() {
+        return attr;
+    }
+
+    public void setAttr(Map<String, String> attr) {
+        this.attr = attr;
+    }
 }

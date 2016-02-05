@@ -57,27 +57,27 @@ public class LeahServiceRegister {
      * key 服务名 http://www.zhengzhichao.com.cn/com.dingmei.UserService_1.0
      * value 服务实例
      */
-    private Map<String,Object> services;
+    private Map<String, Object> services;
 
-    public LeahServiceRegister(){
+    public LeahServiceRegister() {
         this.readBufferSize = 2048;
         this.idleTime = 10;
         this.port = 8825;
         this.autoSelectPort = true;
-        this.coreServicePoolSize = 50;
-        this.maxServicePoolSize = 300;
-        this.workQueueSize = 300;
+        this.coreServicePoolSize = 300;
+        this.maxServicePoolSize = 500;
+        this.workQueueSize = 200;
     }
 
     /**
      * 初始化方法
      */
-    public void init(){
+    public void init() throws IOException {
         LeahServiceManager leahServiceManager = LeahServiceManager.getManager();
 
         //基础配置
         ServerConfig serverConfig = new ServerConfig();
-        serverConfig.setReadBufferSize(this.readBufferSize);
+//        serverConfig.setReadBufferSize(this.readBufferSize);
         serverConfig.setIdleTime(this.idleTime);
         serverConfig.setPort(this.port);
         serverConfig.setAutoSelectPort(this.autoSelectPort);
@@ -87,29 +87,25 @@ public class LeahServiceRegister {
         leahServiceManager.setServerConfig(serverConfig);
 
         //服务配置
-        for(Map.Entry<String,Object> entry : this.services.entrySet()){
+        for (Map.Entry<String, Object> entry : this.services.entrySet()) {
             String serviceUrl = entry.getKey();
-            leahServiceManager.addService(serviceUrl,entry.getValue());
+            leahServiceManager.addService(serviceUrl, entry.getValue());
         }
 
         //启动服务
-        try {
-            this.online();
-        } catch (IOException e) {
-            logger.error(e.getMessage(),e);
-        }
+        this.online();
     }
 
     /**
      * 发布服务
      */
-    private void publish(final String conn){
-        if(register != null){
+    private void publish(final String conn) {
+        if (register != null) {
             //定时发布，防止被误删
-            Thread t = new Thread(){
+            Thread t = new Thread() {
                 @Override
                 public void run() {
-                    for(String serviceUrl : services.keySet()){
+                    for (String serviceUrl : services.keySet()) {
                         logger.info("发布服务: {}", serviceUrl);
                         UrlConnEntity urlConnEntity = new UrlConnEntity();
                         urlConnEntity.setUrl(serviceUrl);
@@ -120,7 +116,7 @@ public class LeahServiceRegister {
                     try {
                         Thread.sleep(PUBLISH_TIME);
                     } catch (InterruptedException e) {
-                        logger.error(e.getMessage(),e);
+                        logger.error(e.getMessage(), e);
                     }
                 }
             };

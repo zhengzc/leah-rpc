@@ -16,7 +16,7 @@ import java.util.concurrent.CountDownLatch;
 /**
  * Created by ying on 15/5/21.
  */
-public class LeahServerTest extends TestCase{
+public class LeahServerTest extends TestCase {
     private final Logger logger = Logger.getLogger(LeahServerTest.class);
 
     private int readBufferSize = 2048;
@@ -28,7 +28,7 @@ public class LeahServerTest extends TestCase{
     private int workQueueSize = 300;
 
     @Test
-    public void testRpcServer(){
+    public void testRpcServer() {
         logger.info("test is starting!");
         try {
 //            LeahContext.export(UserServcie.class, new UserServcieImpl());
@@ -49,7 +49,7 @@ public class LeahServerTest extends TestCase{
 
             LeahServiceManager leahServiceManager = LeahServiceManager.getManager();
             leahServiceManager.setServerConfig(serverConfig);
-            leahServiceManager.addService("http://www.zhengzhichao.com.cn/com.zzc.UserService_1.0",new UserServiceImpl());
+            leahServiceManager.addService("http://www.zhengzhichao.com.cn/com.zzc.UserService_1.0", new UserServiceImpl());
 
             LeahServer.start();
         } catch (IOException e) {
@@ -65,7 +65,7 @@ public class LeahServerTest extends TestCase{
     }
 
     @Test
-    public void test(){
+    public void test() {
         System.out.println(111);
     }
 }

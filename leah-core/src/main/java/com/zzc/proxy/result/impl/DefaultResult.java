@@ -6,38 +6,38 @@ import com.zzc.proxy.result.Result;
 
 /**
  * 默认的返回值
- * @author ying
  *
+ * @author ying
  */
-public class DefaultResult implements Result,Serializable {
-	private String token;
-	private Object result;
+public class DefaultResult implements Result, Serializable {
+    private String token;
+    private Object result;
     private Throwable throwable;
 //    private transient Boolean isSuccess;
-	
-	private static final long serialVersionUID = -917929309672614713L;
-	
-	public DefaultResult(String token){
-		this.token = token;
-	}
-	
-	public void setToken(String token) {
-		this.token = token;
-	}
 
-	public void setResult(Object result) {
-		this.result = result;
-	}
+    private static final long serialVersionUID = -917929309672614713L;
 
-	@Override
-	public String getToken() {
-		return this.token;
-	}
+    public DefaultResult(String token) {
+        this.token = token;
+    }
 
-	@Override
-	public Object getResult() {
-		return this.result;
-	}
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public void setResult(Object result) {
+        this.result = result;
+    }
+
+    @Override
+    public String getToken() {
+        return this.token;
+    }
+
+    @Override
+    public Object getResult() {
+        return this.result;
+    }
 
     @Override
     public Throwable getException() {

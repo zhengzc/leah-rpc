@@ -28,10 +28,11 @@ public class ServiceFutureFactory {
     /**
      * 提交一个Invoker
      * 此方法的这个限制
+     *
      * @param callable
      */
-    protected static void submit(Callable<Result> callable){
-        if(threadFuture.get() != null){
+    protected static void submit(Callable<Result> callable) {
+        if (threadFuture.get() != null) {
             threadFuture.remove();
             String err = "if you set CallType is \"future\",you must call \"ServiceFutureFactory.getFuture\" or \"ServiceFutureFactory.remove\" first before next remote call";
             logger.error(err);
@@ -43,9 +44,10 @@ public class ServiceFutureFactory {
 
     /**
      * 获取最近的一次调用future
+     *
      * @return
      */
-    public static Future<Result> getFuture(){
+    public static Future<Result> getFuture() {
         Future<Result> future = threadFuture.get();
         threadFuture.remove();
         return future;

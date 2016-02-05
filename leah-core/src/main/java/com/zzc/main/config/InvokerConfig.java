@@ -6,7 +6,7 @@ import java.net.URL;
  * Created by ying on 15/6/2.
  * 生成每个接口的动态代理的配置信息
  */
-public class InvokerConfig{
+public class InvokerConfig {
     private final String DEFAULT_VERSION = "1.0";
     /**
      * 服务名
@@ -33,7 +33,7 @@ public class InvokerConfig{
      */
     private CallTypeEnum callType;
 
-    public InvokerConfig(String serviceUrl,Class<?> itfCls, long timeout, CallTypeEnum callType) throws Exception{
+    public InvokerConfig(String serviceUrl, Class<?> itfCls, long timeout, CallTypeEnum callType) throws Exception {
         this.serviceUrl = serviceUrl;
         this.timeout = timeout;
         this.callType = callType;
@@ -42,9 +42,9 @@ public class InvokerConfig{
         URL url = new URL(serviceUrl);
         String path = url.getPath();
         String[] args = path.split("_");
-        if(args.length == 2){
+        if (args.length == 2) {
             this.version = args[1];
-        }else{
+        } else {
             this.version = DEFAULT_VERSION;
         }
     }

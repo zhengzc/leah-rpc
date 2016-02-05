@@ -2,6 +2,7 @@ package com.zzc.main;
 
 import com.zzc.codec.HessianCodecFactory;
 import com.zzc.handler.ClientHandler;
+import com.zzc.util.NamedThreadFactory;
 import org.apache.mina.core.RuntimeIoException;
 import org.apache.mina.core.filterchain.IoFilterAdapter;
 import org.apache.mina.core.future.ConnectFuture;
@@ -15,6 +16,9 @@ import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.Executors;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by ying on 15/5/20.
@@ -25,7 +29,7 @@ public class LeahClient {
     /**
      * 连接超时时间
      */
-    private final int connectTimeoutMillis = 1000*30;
+    private final int connectTimeoutMillis = 1000 * 30;
     /**
      * 断线重连次数
      */
@@ -36,32 +40,32 @@ public class LeahClient {
 
     private IoConnector connector;
 
-    public LeahClient(String ip , int port){
+    public LeahClient(String ip, int port) {
         connector = new NioSocketConnector();
 
         this.ip = ip;
         this.port = port;
     }
 
-   /**
+    /**
      * 启动客户端
      */
-    public void start(){
-        try{
-            logger.info("leahClient 开始启动-->ip:{},port:{},connectTimeoutMillis:{}",new Object[]{ip,port,connectTimeoutMillis});
+    public void start() {
+        try {
+            logger.info("leahClient 开始启动-->ip:{},port:{},connectTimeoutMillis:{}", new Object[]{ip, port, connectTimeoutMillis});
 
             //启动nio
             connector.setConnectTimeoutMillis(connectTimeoutMillis);//连接超时时间
 
             //增加断线重连过滤器
-            connector.getFilterChain().addFirst("reconnector",new IoFilterAdapter(){
+            connector.getFilterChain().addFirst("reconnector", new IoFilterAdapter() {
                 @Override
                 public void destroy() throws Exception {
-                    for(int i = 0 ; i < reconnectorTimes ; i++) {
+                    for (int i = 0; i < reconnectorTimes; i++) {
                         if (i != 0) {
                             Thread.sleep(i * 1000);
                         }
-                        if(reconnect()){
+                        if (reconnect()) {
                             break;
                         }
                     }
@@ -74,22 +78,25 @@ public class LeahClient {
              * 添加ExecutorFilter将业务线程与io线程分离
              * handler中的方法将在新的线程池中调度，作为调用方，不限制调用线程池的大小等参数
              */
-            connector.getFilterChain().addLast("exceutor", new ExecutorFilter(Executors.newCachedThreadPool()));
-            connector.setHandler(new ClientHandler(ip+":"+port));
+//            connector.getFilterChain().addLast("exceutor", new ExecutorFilter(Executors.newCachedThreadPool()));
+            connector.getFilterChain().addLast("executor", new ExecutorFilter(new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(), new NamedThreadFactory("leanClient-thread"))));
+            connector.setHandler(new ClientHandler(ip + ":" + port));
 
             //连接
-            ConnectFuture connectFuture =  connector.connect(new InetSocketAddress(ip,port));
+            ConnectFuture connectFuture = connector.connect(new InetSocketAddress(ip, port));
             //等待连接创建成功
-            connectFuture.awaitUninterruptibly(1000*5);
+            if (connectFuture.awaitUninterruptibly(1000 * 5)) {
+                IoSession session = connectFuture.getSession();
 
-            IoSession session = connectFuture.getSession();
-
-            if(session.isConnected()){//连接成功
-                logger.info("leahClient connected,host:{},port:{}",this.ip,this.port);
+                if (session.isConnected()) {//连接成功
+                    logger.info("leahClient connected,host:{},port:{}", this.ip, this.port);
+                }
+            } else {
+                logger.error("leahClient connect failed,host:{},port:{}", this.ip, this.port);
             }
 
-        }catch (RuntimeIoException e){
-            logger.error(e.getMessage(),e);
+        } catch (RuntimeIoException e) {
+            logger.error("leahClient connect failed,host:{},port:{},{}", this.ip, this.port, e.getMessage());
         }
 
     }
@@ -97,17 +104,17 @@ public class LeahClient {
     /**
      * 重连
      */
-    private Boolean reconnect(){
-        try{
+    private Boolean reconnect() {
+        try {
             ConnectFuture connectFuture = connector.connect(new InetSocketAddress(ip, port));
             connectFuture.awaitUninterruptibly();
             IoSession session = connectFuture.getSession();
-            if(session.isConnected()){//连接成功
-                logger.info("leahClient 重新连接成功,host:{},port:{}",ip,port);
+            if (session.isConnected()) {//连接成功
+                logger.info("leahClient 重新连接成功,host:{},port:{}", ip, port);
                 return true;
             }
             return false;
-        }catch (RuntimeIoException e){
+        } catch (RuntimeIoException e) {
             logger.error(e.getMessage());
             return false;
         }
@@ -117,7 +124,7 @@ public class LeahClient {
     /**
      * 停止服务
      */
-    public void stop(){
+    public void stop() {
         this.connector.dispose(true);
     }
 

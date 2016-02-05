@@ -1,44 +1,52 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
 
-<log4j:configuration xmlns:log4j='http://jakarta.apache.org/log4j/' >
+<log4j:configuration xmlns:log4j='http://jakarta.apache.org/log4j/'>
 
     <appender name="console" class="org.apache.log4j.ConsoleAppender">
         <layout class="org.apache.log4j.PatternLayout">
             <param name="ConversionPattern"
-                   value="[%d{dd HH:mm:ss,SSS\} %-5p] [%t] %c{2\} - %m%n" />
+                   value="[%d{dd HH:mm:ss,SSS\} %-5p] [%t] %c{2\} - %m%n"/>
         </layout>
     </appender>
 
     <appender name="file" class="org.apache.log4j.RollingFileAppender">
-        <param name="File" value="/data2/log/rpc/app.log" /><!-- 设置日志输出文件名 -->
+        <param name="File" value="/data2/log/rpc/app.log"/>
+        <!-- 设置日志输出文件名 -->
         <!-- 设置是否在重新启动服务时，在原有日志的基础添加新日志 -->
-        <param name="Append" value="true" />
-        <param name="MaxBackupIndex" value="10" />
+        <param name="Append" value="true"/>
+        <param name="MaxBackupIndex" value="10"/>
         <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="[%d{dd HH:mm:ss,SSS\} %-5p] [%t] %c - %m%n" />
+            <param name="ConversionPattern" value="[%d{dd HH:mm:ss,SSS\} %-5p] [%t] %c - %m%n"/>
         </layout>
     </appender>
 
     <appender name="activexAppender" class="org.apache.log4j.DailyRollingFileAppender">
-        <param name="File" value="/data2/log/rpc/app.log" />
-        <param name="DatePattern" value="'.'yyyy-MM-dd'.log'" />
+        <param name="File" value="/data2/log/rpc/app.log"/>
+        <param name="DatePattern" value="'.'yyyy-MM-dd'.log'"/>
         <layout class="org.apache.log4j.PatternLayout">
             <param name="ConversionPattern"
-                   value="[%d{MMdd HH:mm:ss SSS\} %-5p] [%t] %c{3\} - %m%n" />
+                   value="[%d{MMdd HH:mm:ss SSS\} %-5p] [%t] %c{3\} - %m%n"/>
         </layout>
     </appender>
 
+    <appender name="catAppender" class="com.dianping.cat.log4j.CatAppender"></appender>
+
     <!-- 指定logger的设置，additivity指示是否遵循缺省的继承机制-->
     <category name="org.apache.mina">
-        <priority value="INFO" />
-        <appender-ref ref="console" />
+        <priority value="INFO"/>
+        <!--<appender-ref ref="console" />-->
+    </category>
+
+    <category name="com.zzc.codec">
+        <priority value="INFO"/>
     </category>
 
     <!-- 根logger的设置-->
     <root>
-        <priority value ="DEBUG"/>
+        <priority value="DEBUG"/>
         <appender-ref ref="console"/>
         <appender-ref ref="file"/>
+        <appender-ref ref="catAppender"/>
     </root>
 </log4j:configuration>

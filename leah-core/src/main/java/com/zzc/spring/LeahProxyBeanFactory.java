@@ -12,8 +12,8 @@ import org.springframework.beans.factory.FactoryBean;
  * Created by ying on 15/6/25.
  * 与spring集成的时候，所有客户端实现类将由此工厂创建
  */
-public class LeahProxyBeanFactory implements FactoryBean{
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+public class LeahProxyBeanFactory implements FactoryBean {
+    private final Logger logger = LoggerFactory.getLogger(LeahProxyBeanFactory.class);
 
     /**
      * 主要配置参数
@@ -28,8 +28,8 @@ public class LeahProxyBeanFactory implements FactoryBean{
     private Class itfCls;//类
     private Object obj;//代理实现类
 
-    public LeahProxyBeanFactory(){
-        this.classLoader = this.getClass().getClassLoader();
+    public LeahProxyBeanFactory() {
+        this.classLoader = LeahProxyBeanFactory.class.getClassLoader();
         this.timeout = 5000;
         this.callType = CallTypeEnum.syn.getValue();
     }
@@ -37,17 +37,17 @@ public class LeahProxyBeanFactory implements FactoryBean{
     /**
      * 定义一个初始化方法
      */
-    public void init() throws Exception{
-        logger.info("init {} begin",this.itf);
+    public void init() throws Exception {
+        logger.info("init {} begin", this.itf);
 
-        if(this.itf == null || this.itf.trim().length() == 0){
-            throw new IllegalArgumentException("invalid interface:"+this.itf);
+        if (this.itf == null || this.itf.trim().length() == 0) {
+            throw new IllegalArgumentException("invalid interface:" + this.itf);
         }
         //生成代理
         this.itfCls = this.classLoader.loadClass(this.itf.trim());
 
         //构建调用配置
-        InvokerConfig invokerConfig = new InvokerConfig(this.serviceUrl,this.itfCls,timeout,CallTypeEnum.getCallType(this.callType));
+        InvokerConfig invokerConfig = new InvokerConfig(this.serviceUrl, this.itfCls, timeout, CallTypeEnum.getCallType(this.callType));
 
         //生成代理
         this.obj = ProxyFactory.getProxy(invokerConfig);
@@ -58,7 +58,7 @@ public class LeahProxyBeanFactory implements FactoryBean{
         LeahReferManager leahReferManager = LeahReferManager.getManager();
         leahReferManager.addInvoker(invokerConfig);
 
-        logger.info("init {} end",this.itf);
+        logger.info("init {} end", this.itf);
     }
 
     @Override

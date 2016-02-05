@@ -12,9 +12,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @ContextConfiguration(locations = "classpath:spring/applicationContext-service.xml")
 public class LeahServerTest {
     @Test
-    public void testLeahServer(){
+    public void testLeahServer() {
         try {
-            Thread.sleep(1000*60*60);
+            Thread.sleep(1000 * 60 * 60);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
