@@ -3,3 +3,4 @@ service/UserService.class
 service/UserBean.class
 test/Server.class
 App.class
+App$1.class

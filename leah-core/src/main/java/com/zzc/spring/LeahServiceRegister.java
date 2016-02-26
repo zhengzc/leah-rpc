@@ -21,7 +21,6 @@ public class LeahServiceRegister {
     //间隔多久重新发布一次服务
     private static final int PUBLISH_TIME = 15 * 1000;
 
-    @Autowired
     private Register register;
 
     /**
@@ -100,17 +99,21 @@ public class LeahServiceRegister {
      * 发布服务
      */
     private void publish(final String conn) {
-        if (register != null) {
-            //定时发布，防止被误删
-            Thread t = new Thread() {
-                @Override
-                public void run() {
-                    for (String serviceUrl : services.keySet()) {
-                        logger.info("发布服务: {}", serviceUrl);
-                        UrlConnEntity urlConnEntity = new UrlConnEntity();
-                        urlConnEntity.setUrl(serviceUrl);
-                        urlConnEntity.setConn(conn);
-                        register.publish(urlConnEntity);
+        //定时发布，防止被误删
+        Thread t = new Thread() {
+            @Override
+            public void run() {
+                while(true) {
+                    if (register != null) {
+                        for (String serviceUrl : services.keySet()) {
+                            logger.info("发布服务: {}", serviceUrl);
+                            UrlConnEntity urlConnEntity = new UrlConnEntity();
+                            urlConnEntity.setUrl(serviceUrl);
+                            urlConnEntity.setConn(conn);
+                            register.publish(urlConnEntity);
+                        }
+                    } else {
+                        logger.warn("register is null，不发布服务");
                     }
 
                     try {
@@ -119,10 +122,10 @@ public class LeahServiceRegister {
                         logger.error(e.getMessage(), e);
                     }
                 }
-            };
+            }
+        };
 
-            t.start();
-        }
+        t.start();
     }
 
     /**

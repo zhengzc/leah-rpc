@@ -74,6 +74,7 @@ public class HessianEncoder extends ProtocolEncoderAdapter {
             IoBuffer buffer = IoBuffer.allocate(objectLength + INT_BYTE_SIZE);//换成这个，提高性能
 
             buffer.putInt(objectLength);//先放入对象长度
+            logger.debug("encoder object size is {}",objectLength);
             Cat.logEvent("encoder", "encode object size", Event.SUCCESS, String.valueOf(objectLength));
             buffer.put(object);//写入序列化对象
 

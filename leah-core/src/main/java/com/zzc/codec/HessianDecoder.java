@@ -25,6 +25,7 @@ public class HessianDecoder extends CumulativeProtocolDecoder {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private int maxDataLength;//发送对象大小
+    private final int INT_BYTE_SIZE = Integer.SIZE / 8;
 
     private SerializerFactory serializerFactory;
 
@@ -53,7 +54,7 @@ public class HessianDecoder extends CumulativeProtocolDecoder {
             //		in.flip();//切换到读模式 这里不能切换，可能是已经切换过了
 
             //		if(in.prefixedDataAvailable(4)){//出现完整的对象,则表示收到一个请求,准备拆包,此方法可能导致ddos攻击，修改为prefixedDataAvailable(int,int)方法
-            if (in.prefixedDataAvailable(4, maxDataLength)) {//encoder中我们写入了一个int来表示对象长度
+            if (in.prefixedDataAvailable(INT_BYTE_SIZE, maxDataLength)) {//encoder中我们写入了一个int来表示对象长度
                 int objectSize = in.getInt();//获取对象长度
                 Cat.logEvent("decoder", "decoder object size", Event.SUCCESS, String.valueOf(objectSize));
                 //读取数据

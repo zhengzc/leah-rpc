@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+
+<log4j:configuration xmlns:log4j='http://jakarta.apache.org/log4j/'>
+
+    <appender name="console" class="org.apache.log4j.ConsoleAppender">
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern"
+                   value="[%d{dd HH:mm:ss,SSS\} %-5p] [%t] %c{2\} - %m%n"/>
+        </layout>
+    </appender>
+
+    <appender name="catAppender" class="com.dianping.cat.log4j.CatAppender"></appender>
+
+    <!-- 指定logger的设置，additivity指示是否遵循缺省的继承机制-->
+    <category name="org.apache.mina">
+        <priority value="INFO"/>
+        <!--<appender-ref ref="console" />-->
+    </category>
+
+    <category name="com.zzc.codec">
+        <priority value="INFO"/>
+    </category>
+
+    <!-- 根logger的设置-->
+    <root>
+        <priority value="INFO"/>
+        <appender-ref ref="console"/>
+        <appender-ref ref="catAppender"/>
+    </root>
+</log4j:configuration>

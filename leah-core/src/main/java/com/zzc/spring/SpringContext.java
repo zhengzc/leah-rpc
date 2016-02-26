@@ -71,6 +71,7 @@ public class SpringContext implements ApplicationContextAware, ApplicationListen
             if (refreshEvent.getApplicationContext().getParent() == null) {//防止事件重复执行
                 //初始化客户端链接管理
                 ConnManager.init(register);
+
                 Cat.getInstance();
 
 //                try {
