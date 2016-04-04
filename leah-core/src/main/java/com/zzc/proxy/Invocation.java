@@ -1,12 +1,14 @@
 package com.zzc.proxy;
 
+import java.io.Serializable;
+
 /**
  * 此接口定义了执行rpc调用需要的参数信息
  * 此接口的实现类就是进行rpc调用传递调用信息的类
  *
  * @author ying
  */
-public interface Invocation {
+public interface Invocation extends Serializable{
     /**
      * 获取要调用的方法名字
      *

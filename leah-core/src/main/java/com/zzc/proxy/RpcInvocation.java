@@ -6,7 +6,7 @@ import java.io.Serializable;
  * @author ying
  *         发起rpc调用的时候，调用信息传递封装在此类中
  */
-public class RpcInvocation implements Invocation, Serializable {
+public class RpcInvocation implements Invocation {
     /**
      * 方法名
      */

@@ -154,7 +154,7 @@ public abstract class JavassistWrapper {
 //		ClassLoader cl = c.getClassLoader();
         ClassPool pool = ClassPool.getDefault();//全部使用默认类加载器
         long id = COUNTER.getAndIncrement();
-        CtClass cc = pool.makeClass((Modifier.isPublic(c.getModifiers()) ? JavassistWrapper.class.getName() : c.getName() + "$sw") + id);//起一个名字
+        CtClass cc = pool.makeClass((Modifier.isPublic(c.getModifiers()) ? JavassistWrapper.class.getName() : c.getName() + "$sw") + id);//起一个名字,如果这个类是public的，就直接用名字，否则起类似内部类的名字
         try {
             cc.setSuperclass(pool.get(JavassistWrapper.class.getName()));//增加父类
             cc.addConstructor(CtNewConstructor.defaultConstructor(cc));//增加默认构造方法

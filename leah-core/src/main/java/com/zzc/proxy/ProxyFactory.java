@@ -44,7 +44,7 @@ public class ProxyFactory {
          */
         String serviceUrl = invokerConfig.getServiceUrl();
 
-        if (proxyObjectCache.containsKey(serviceUrl)) {
+        /*if (proxyObjectCache.containsKey(serviceUrl)) {
             return (T) proxyObjectCache.get(serviceUrl);
         } else {
             //创建动态代理
@@ -57,7 +57,20 @@ public class ProxyFactory {
 
             return (T) enhancer.create();
 
+        }*/
+
+        if(!proxyObjectCache.containsKey(serviceUrl)){//不存在就创建动态代理
+            //创建动态代理
+            Enhancer enhancer = new Enhancer();
+            enhancer.setInterfaces(new Class[]{invokerConfig.getItfCls()});
+            enhancer.setCallback(new ServiceInterceptor(invokerConfig));
+
+            //添加到缓存
+            proxyObjectCache.put(serviceUrl, enhancer.create());
+
         }
+
+        return (T) proxyObjectCache.get(serviceUrl);
 
     }
 
