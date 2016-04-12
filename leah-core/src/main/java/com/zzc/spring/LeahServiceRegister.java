@@ -26,6 +26,7 @@ public class LeahServiceRegister {
     /**
      * 读取数据缓冲区大小
      */
+    @Deprecated
     private int readBufferSize;
     /**
      * 通道多长时间进入空闲状态
@@ -50,6 +51,7 @@ public class LeahServiceRegister {
     /**
      * 工作队列大小
      */
+    @Deprecated
     private int workQueueSize;
     /**
      * 所有服务
@@ -64,7 +66,7 @@ public class LeahServiceRegister {
         this.port = 8825;
         this.autoSelectPort = true;
         this.coreServicePoolSize = 300;
-        this.maxServicePoolSize = 500;
+        this.maxServicePoolSize = 600;
         this.workQueueSize = 200;
     }
 

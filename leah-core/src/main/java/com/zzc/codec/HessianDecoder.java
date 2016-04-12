@@ -80,8 +80,10 @@ public class HessianDecoder extends CumulativeProtocolDecoder {
                 //					in.compact();
 
                 retBoolean = true;
+                logger.debug("decoder 接收完毕 耗时:{}ms", System.currentTimeMillis() - s);
             } else {//对象没有接受完毕，等待继续读取
                 retBoolean = false;
+                logger.debug("decoder 已接受size:{}byte {}kb 耗时:{}ms",in.remaining(),in.remaining()/1024,System.currentTimeMillis() - s);
             }
 
             t.setStatus(Transaction.SUCCESS);
@@ -99,7 +101,6 @@ public class HessianDecoder extends CumulativeProtocolDecoder {
 
             t.complete();
 
-            logger.debug("decoder 耗时:{}ms", System.currentTimeMillis() - s);
         }
 
         return retBoolean;

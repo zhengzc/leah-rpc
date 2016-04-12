@@ -5,7 +5,7 @@
        http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
 
     <bean id="register" class="com.zzc.spring.LeahRegisterFactory" lazy-init="false">
-        <property name="address" value="mysql://172.24.57.25:3306/leah"></property>
+        <property name="address" value="mysql://127.0.0.1:3306/leah"></property>
         <property name="userName" value="zhengzc"></property>
         <property name="password" value="zhengzc123"></property>
     </bean>
@@ -14,10 +14,10 @@
         <property name="register" ref="register"></property>
         <property name="services">
             <map>
-                <entry key="http://www.zhengzhichao.com.cn/service.UserService_1.0" value-ref="userService"/>
+                <entry key="http://www.zhengzhichao.com.cn/com.zzc.UserService_1.0" value-ref="userService"/>
             </map>
         </property>
     </bean>
 
-    <bean id="userService" class="service.UserServiceImpl"></bean>
+    <bean id="userService" class="com.zzc.UserServiceImpl"></bean>
 </beans>

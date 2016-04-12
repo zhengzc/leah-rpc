@@ -30,7 +30,9 @@ public class ServerConfig {
     private int coreServicePoolSize;
     /**
      * 最大服务线程池大小
+     * 不再使用，服务端线程池直接使用SynBolckQueue
      */
+    @Deprecated
     private int maxServicePoolSize;
     /**
      * 工作队列大小
@@ -87,10 +89,12 @@ public class ServerConfig {
         this.maxServicePoolSize = maxServicePoolSize;
     }
 
+    @Deprecated
     public int getWorkQueueSize() {
         return workQueueSize;
     }
 
+    @Deprecated
     public void setWorkQueueSize(int workQueueSize) {
         this.workQueueSize = workQueueSize;
     }

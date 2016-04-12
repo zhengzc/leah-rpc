@@ -44,7 +44,7 @@
 
     <!-- 根logger的设置-->
     <root>
-        <priority value="DEBUG"/>
+        <priority value="INFO"/>
         <appender-ref ref="console"/>
         <appender-ref ref="file"/>
         <appender-ref ref="catAppender"/>

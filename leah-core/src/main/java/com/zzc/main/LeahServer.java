@@ -42,9 +42,11 @@ public class LeahServer {
 
         acceptor = new NioSocketAcceptor();
         IoSessionConfig sessionConfig = acceptor.getSessionConfig();
-//        sessionConfig.setReadBufferSize(serverConfig.getReadBufferSize());
+        /** 不再设置这个缓冲区大小，让mina自动调整
+        sessionConfig.setReadBufferSize(serverConfig.getReadBufferSize());
         sessionConfig.setMinReadBufferSize(1024);
-        serverConfig.setMaxServicePoolSize(1024 * 512);
+        sessionConfig.setMaxReadBufferSize(1024 * 512);
+         */
         sessionConfig.setIdleTime(IdleStatus.BOTH_IDLE, serverConfig.getIdleTime());//设置多长时间进入空闲
         //添加hession的编码和解码过滤器
         acceptor.getFilterChain().addLast("codec", new ProtocolCodecFilter(new HessianCodecFactory()));

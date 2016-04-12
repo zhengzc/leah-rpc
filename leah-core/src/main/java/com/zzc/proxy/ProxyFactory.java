@@ -59,7 +59,7 @@ public class ProxyFactory {
 
         }*/
 
-        if(!proxyObjectCache.containsKey(serviceUrl)){//不存在就创建动态代理
+        if(!proxyObjectCache.containsKey(serviceUrl)){//不存在就创建代理对象
             //创建动态代理
             Enhancer enhancer = new Enhancer();
             enhancer.setInterfaces(new Class[]{invokerConfig.getItfCls()});

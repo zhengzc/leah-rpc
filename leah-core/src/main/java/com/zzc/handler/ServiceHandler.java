@@ -36,7 +36,7 @@ public class ServiceHandler extends IoHandlerAdapter {
                 serverConfig.getMaxServicePoolSize(),
                 60,
                 TimeUnit.SECONDS,
-                new LinkedBlockingQueue<Runnable>(serverConfig.getWorkQueueSize()),
+                new SynchronousQueue<Runnable>(),
                 new NamedThreadFactory("leahRpcServices")
         );
     }

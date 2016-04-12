@@ -19,12 +19,12 @@
     </category>
 
     <category name="com.zzc.codec">
-        <priority value="INFO"/>
+        <priority value="DEBUG"/>
     </category>
 
     <!-- 根logger的设置-->
     <root>
-        <priority value="INFO"/>
+        <priority value="DEBUG"/>
         <appender-ref ref="console"/>
         <appender-ref ref="catAppender"/>
     </root>

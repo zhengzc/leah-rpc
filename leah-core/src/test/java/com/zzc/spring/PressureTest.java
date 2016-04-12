@@ -24,17 +24,20 @@ public class PressureTest {
     private UserService userService;
 
     /**
-     * 随机生成一定b大小的string
+     * 随机生成一定kb大小的string 英文字符
      */
-    private String genString(int num) {
+    private String genString(int kb) {
         StringBuffer buffer = new StringBuffer("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
         StringBuffer sb = new StringBuffer();
         Random random = new Random();
         int range = buffer.length();
-        for (int i = 0; i < (1000 * num) / 2; i++) {
+        for (int i = 0; i < kb*1024; i++) {
             sb.append(buffer.charAt(random.nextInt(range)));
         }
-        return sb.toString();
+
+        String tmp = sb.toString();
+        logger.info("生成字符串大小为{}byte {}kb", tmp.getBytes().length, tmp.getBytes().length / 1024);
+        return tmp;
     }
 
     @Test
@@ -46,9 +49,10 @@ public class PressureTest {
             executorService.execute(new Runnable() {
                 @Override
                 public void run() {
+                    String tmp = genString(1);
                     while (true) {
                         long s = System.currentTimeMillis();
-                        userService.testStr(genString(1000));
+                        userService.testStr(tmp);
                         logger.info("-->{}ms", System.currentTimeMillis() - s);
                     }
                 }
@@ -63,7 +67,7 @@ public class PressureTest {
                 e.printStackTrace();
             }
 
-            if (count > 60 * 10) {
+            if (count > 60 * 30) {
                 break;
             }
         }

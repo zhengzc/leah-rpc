@@ -1,8 +1,8 @@
+import com.zzc.UserService;
 import com.zzc.spring.SpringContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import service.UserService;
 
 import java.io.IOException;
 import java.util.Random;
@@ -55,23 +55,26 @@ public class App {
                     public void run() {
                         while (true) {
                             long s = System.currentTimeMillis();
-                            userService.testStr(genString(1000));
+                            userService.testStr(genString(1));
                             logger.info("-->{}ms", System.currentTimeMillis() - s);
                         }
                     }
 
                     /**
-                     * 随机生成一定b大小的string
+                     * 随机生成一定kb大小的string 英文字符
                      */
-                    private String genString(int num) {
+                    private String genString(int kb) {
                         StringBuffer buffer = new StringBuffer("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
                         StringBuffer sb = new StringBuffer();
                         Random random = new Random();
                         int range = buffer.length();
-                        for (int i = 0; i < (1000 * num) / 2; i++) {
+                        for (int i = 0; i < kb*1024; i++) {
                             sb.append(buffer.charAt(random.nextInt(range)));
                         }
-                        return sb.toString();
+
+                        String tmp = sb.toString();
+                        logger.info("生成字符串大小为{}byte {}kb", tmp.getBytes().length, tmp.getBytes().length / 1024);
+                        return tmp;
                     }
                 });
             }
