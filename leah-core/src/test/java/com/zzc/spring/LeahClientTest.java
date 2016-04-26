@@ -44,11 +44,10 @@ public class LeahClientTest {
     public void test2() {
         userService.add(new UserBean(33333333));
         try {
-            ExecutorService executorService = Executors.newFixedThreadPool(10);
-            for (int i = 0; i < 100; i++) {
+            ExecutorService executorService = Executors.newFixedThreadPool(1000);
+            for (int i = 0; i < 10000; i++) {
                 executorService.submit(new ThreadTest(i));
             }
-
 
             Thread.sleep(1000 * 60 * 10);
         } catch (InterruptedException e) {

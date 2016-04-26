@@ -24,21 +24,21 @@ public class ServiceHandler extends IoHandlerAdapter {
     /**
      * 执行真正方法调用的线程池
      */
-    private Executor threadPool;
+//    private Executor threadPool;
 
     public ServiceHandler() {
         LeahServiceManager leahServiceManager = LeahServiceManager.getManager();
-        ServerConfig serverConfig = leahServiceManager.getServerConfig();
+//        ServerConfig serverConfig = leahServiceManager.getServerConfig();
 
         //初始化工作队列
-        this.threadPool = new ThreadPoolExecutor(
+        /*this.threadPool = new ThreadPoolExecutor(
                 serverConfig.getCoreServicePoolSize(),
                 serverConfig.getMaxServicePoolSize(),
                 60,
                 TimeUnit.SECONDS,
                 new SynchronousQueue<Runnable>(),
                 new NamedThreadFactory("leahRpcServices")
-        );
+        );*/
     }
 
     @Override
@@ -78,7 +78,7 @@ public class ServiceHandler extends IoHandlerAdapter {
     public void messageReceived(IoSession session, Object message) throws Exception {
         logger.debug("message Received-->message is {},time {}", message.toString(), System.currentTimeMillis());
         //客户端收到的消息统一转换为Invocation对象
-        /*Invocation invocation = (Invocation) message;
+        Invocation invocation = (Invocation) message;
         DefaultResult result = new DefaultResult(invocation.getToken());
         try {
             //执行调用
@@ -92,9 +92,9 @@ public class ServiceHandler extends IoHandlerAdapter {
         }
 
         //写入返回数据
-        session.write(result);*/
+        session.write(result);
 
-        this.threadPool.execute(new RpcService(session, (Invocation) message));
+//        this.threadPool.execute(new RpcService(session, (Invocation) message));
     }
 
     @Override
@@ -107,7 +107,7 @@ public class ServiceHandler extends IoHandlerAdapter {
      * 服务端每次都用新的线程处理远程调用
      * 此类就是每次收到请求的时候发起的调用类
      */
-    class RpcService implements Runnable {
+    /*class RpcService implements Runnable {
         private IoSession session;
         private Invocation invocation;
 
@@ -135,5 +135,5 @@ public class ServiceHandler extends IoHandlerAdapter {
             session.write(result);
 
         }
-    }
+    }*/
 }
