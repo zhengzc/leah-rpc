@@ -27,7 +27,7 @@ public class ServiceHandler extends IoHandlerAdapter {
 //    private Executor threadPool;
 
     public ServiceHandler() {
-        LeahServiceManager leahServiceManager = LeahServiceManager.getManager();
+//        LeahServiceManager leahServiceManager = LeahServiceManager.getManager();
 //        ServerConfig serverConfig = leahServiceManager.getServerConfig();
 
         //初始化工作队列
