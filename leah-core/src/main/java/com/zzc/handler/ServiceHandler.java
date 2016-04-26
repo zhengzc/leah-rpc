@@ -1,18 +1,13 @@
 package com.zzc.handler;
 
-import com.zzc.main.LeahServiceManager;
-import com.zzc.main.config.ServerConfig;
 import com.zzc.proxy.Invocation;
 import com.zzc.proxy.ProxyFactory;
 import com.zzc.proxy.result.impl.DefaultResult;
-import com.zzc.util.NamedThreadFactory;
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.*;
 
 /**
  * Created by ying on 15/5/18.
